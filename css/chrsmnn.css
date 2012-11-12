@@ -15,10 +15,10 @@
 		
 		.write_note_box { width: 560px; height: 530px;}
 		
-		.window_panel { border: 0px solid #E5E5E5;}
-		.window_panel .window_header { border-top: 1px  solid #777 !important; border-left: 1px  solid #777 !important;
+		.window_panel { border: 0px solid #E5E5E5; font-size: 12px; font-weight: normal;}
+		.window_panel .window_header { border-top: 1px  solid #888 !important; border-left: 1px  solid #888 !important;
 						border-right: 0px  !important; border-bottom: 0px  !important;
-						 width: 5px; background-color: #FFF; width: 10px; height: 5px;
+						 width: 2px; background-color: #FFF;  height: 3px;
 						/*	background: url('../images/moveCursor.png') 0 0 no-repeat;*/}
 		.window_panel .window_footer { border: 1px;}
 		.ui-widget-header { border: 1px solid #000 !important; background-color: #FFF;}
@@ -34,9 +34,9 @@
 		.window_panel .window_frame {overflow: hidden !important;}
 		
 		.window_panel .window_header .closeImg:after {
-			content: 'x';
+			content: '-';
 		}
-		.window_panel .window_header .closeImg { display: none;}
+		.window_panel .window_header .closeImg { color: #888; margin-top: -2px; }
 		
 		.window_panel .window_header .minimizeImg:after {content: '--';}  
 
@@ -49,7 +49,7 @@
 		.search_input input {z-index: 5000;}
 		
 		#desc_window { }
-		.window_container {padding: 10px; font-size: 11px;  /*background-color: #FFF;*/ color: #000;}
+		.window_container {padding: 0 10px; font-size: 11px;  /*background-color: #FFF;*/ color: #000;}
 		.loading { margin: 100px 180px;}
 		.defulat-link-color a {color: #00FFFF; }
 		.defulat-link-color a:visited {color: #800080 ;}
@@ -82,3 +82,7 @@
 		.highlight { background-color: #EEE; }
 		
 		#tooltip { position: fixed; bottom: 5px; left: 5px;  display: none; z-index: 100;} 
+		
+		h2.suggestion { display: block; margin-top: 20px;}
+		.wiki_suggestions li { font-size: 12px;} 
+		.wiki_suggestions li .rel { width: 100px;  overflow: hidden; display: inline-block; font-size: 10px;} 

@@ -39,6 +39,10 @@
 
 	var WRITE_WINDOW_WIDTH = 600;
 	var WRITE_WINDOW_HEIGHT = 400;
+	
+	
+	var BY_TERM_JSON = '/proxy.php?proxy_url='+'http://wikipedia-miner.cms.waikato.ac.nz/services/exploreArticle?outLinks=true%26parentCategories=true%26linkRelatedness=true%26responseFormat=json%26title=';
+
 
 	
 	var windowIndex = 0;
@@ -110,7 +114,7 @@
 	function openFirstBox() {
 	   
 	   var search_content=$("#search_window").html();
-	   	openWindow(10, 0,WINDOW_WIDTH,100,
+	   	openWindow(10, 0,WINDOW_WIDTH,2000,100,
 		search_content,'');
 
 	   /* $('#start').hide();
@@ -143,7 +147,7 @@
 		return textContent = grids[gridIndex];
 	}
 
-	function openWindow(x,y, width, height , content ,  title) {
+	function openWindow(x,y,z, width, height , content ,  title) {
 		
 		descriptionWindow[windowIndex] = $.window({
 			title: title!=null ? title : " ",
@@ -177,6 +181,10 @@
 	{
 		$.getJSON("search_all.php?keyword="+searchBox.value+"", searchCallback(searchBox));
 		$(searchBox.offsetParent).find('.change_to_note').css('display','none');
+		
+		setTimeout(function() {
+			searchWikiminer(searchBox.value);
+		},2000);
  		
 
 		
@@ -200,8 +208,8 @@
 				if(author!=item.author && authorCount!=-1 && resultPerAuthorCount>5) {
 					results = '<div class="window_container"><div class="result_container"><ul class="results_box">'+results+'</ul></div></div>';
 					var height =   WINDOW_HEIGHT;
-					var randomX = Math.random()*WINDOW_WIDTH/6-WINDOW_WIDTH/10;
-					window = openWindow(authorCount*(WINDOW_WIDTH)+randomX,55+Math.random()*60-30, WINDOW_WIDTH, height , results ,  '');
+					var randomX = Math.random()*WINDOW_WIDTH/6-WINDOW_WIDTH/10+50;
+					window = openWindow(authorCount*(WINDOW_WIDTH)+randomX,55+Math.random()*60-30,2000, WINDOW_WIDTH, height , results ,  '');
 					var results_height = $(window)[0].getResultContainer().height();
 					$(window)[0].window.resize(WINDOW_WIDTH,Math.min(results_height+50,1200));
 					results='';
@@ -453,75 +461,55 @@ function processTooltipResponse(topicId, response, linkProb) {
 }
 		
 	
-	function openAdjacentWindow(chck, content, window) {
-		var thisWindow = window !=null ? window : chck.offsetParent.offsetParent;
-		var top = thisWindow.offsetTop;
-		var left = thisWindow.offsetLeft;
-		var chckClass = chck.classList[0];
-		switch(chckClass) {
-			case 'top_chck': top=top-(WINDOW_HEIGHT+10);
-				break;
-			case 'right_chck': left=left+(WINDOW_WIDTH+10);
-				break;
-			case 'bottom_chck': top=top+(WINDOW_HEIGHT+10);
-				break;
-			case 'left_chck': left=left-(WINDOW_WIDTH+10);
-				break;
-		}
-		
-		var window_content= content!=null ? content : $("#search_window").html();
-		
-		if(top<0) {
-			var yMove = -top+10;
-			for(var i=0;i<windowIndex;i++) {
-				descriptionWindow[i].move(descriptionWindow[i].getContainer().position().left,
-				descriptionWindow[i].getContainer().position().top+yMove);
-				
-				
-			}
-			top = 10;
-				
-		}
-		if(left<0) {
-			var xMove = -left+10;
-			for(var i=0;i<windowIndex;i++) {
-				descriptionWindow[i].move(descriptionWindow[i].getContainer().position().left+xMove,
-				descriptionWindow[i].getContainer().position().top);
-				
-			}
-			left = 10;
-			  
-		
-		}
-		
-		var grid=openWindow(0,0,WINDOW_WIDTH,WINDOW_HEIGHT,window_content);
 
-		
-		descriptionWindow[windowIndex-1].move(left,top);
-		//alert(top+' '+left);
-		//alert(chck);
-		return grid;
+	
+	function searchWikiminer(term) {
+		processArticleJSON(BY_TERM_JSON+term,term);
 	}
 	
+	function processArticleJSON(url,term) {
 	
-	function saveReading() {
-		var gridJson=[];
-		for(var i=0;i<grids.length;i++){
-			gridJson.push(grids[i].toJson());
+				console.log('wiki search');
+				$.getJSON(url, function(data) {
+				json_cache = data;
+				var sortedLinks = sortJSON(data,'relatedness');
+				//articleId= data.id;
+				console.log(data.id);
+				//showTooltip(articleId, $('#center'),null);
+				//$('#tooltip').show();
+				
+				//$('#article').val(data.title);
+
+				//changed = true;
+				//console.log(sortedLinks);
+				var suggestions_html ='<h2 class="suggestion">Suggestions based on Wikipedia connection structure for \''+term+'\': </h2><ul class="wiki_suggestions">';
+				$.each(sortedLinks, function(index,item) {
+					if(index<10) {
+						suggestions_html+='<li>'+item.title+' <span class="rel">(relevance: '+item.relatedness.toFixed(3)+')</span></li>';
+						//console.log(item.title);
+					}
+				});
+				console.log(suggestions_html);
+				openWindow(40, 300,4000,400,250,
+		suggestions_html,'');
+			});
+	}
+	
+	function sortJSON(data,sortMethod) {
+		var ret;
+		console.log(sortMethod);
+		if(sortMethod=='relatedness') {
+			ret=data.outLinks.sort(function(a,b) { return parseFloat(b.relatedness) - parseFloat(a.relatedness) } );
 		}
-		jsonObject = { "name": "test name", "grids": gridJson};
-		console.log("posting");
-		$.post("save.php", {"data":JSON.stringify(jsonObject)}, function(data) {
-   console.log("posted");
- });
-		//console.log(JSON.stringify(jsonObject));
-		//post to save.php
-	
+		else {
+			console.log('sort method is title');
+			ret=data.outLinks.sort(function(a,b) { return a.title > b.title ? 1 : -1 } );
+		}
+		return ret;
 	}
 	
-	function loadReading() {
 	
-	}
+	
 </script>
 </head>
 <body>
