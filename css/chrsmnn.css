@@ -1,0 +1,84 @@
+		body { /*background-color: #FFF;*/ padding: 0; margin: 0; color: #000; 
+			font-family:Lucida Console, Monaco, sans-serif; font-size: 12px; width: 1000px;}
+		li {list-style: none;}
+		#container {margin: 0 auto; position: relative; width: 1000px;}
+		.underground { border-bottom: 1px solid #FFF;  }
+		h1,h2 {font-size: 12px; font-weight: normal; display: inline; padding: 0 10px;}
+		a, a:visited {color: #000; text-decoration: none;}
+		
+		#start {width: 50px; margin: 0 auto; margin-top: 200px;}
+		#write {  left: 5px; }
+		#load { right: 70px;}
+		#save { right: 20px;}
+		
+		.utilButton {position: fixed; top: 5px;}
+		
+		.write_note_box { width: 560px; height: 530px;}
+		
+		.window_panel { border: 0px solid #E5E5E5;}
+		.window_panel .window_header { border-top: 1px  solid #777 !important; border-left: 1px  solid #777 !important;
+						border-right: 0px  !important; border-bottom: 0px  !important;
+						 width: 5px; background-color: #FFF; width: 10px; height: 5px;
+						/*	background: url('../images/moveCursor.png') 0 0 no-repeat;*/}
+		.window_panel .window_footer { border: 1px;}
+		.ui-widget-header { border: 1px solid #000 !important; background-color: #FFF;}
+		
+		.ui-icon-gripsmall-diagonal-se {background: #FFF url('../images/resize_corner.png') -5px -5px no-repeat;}
+		
+		.ui-widget-header { background-image: none;}
+		
+		.window_panel .window_header .window_title_text { }
+
+		.window_panel .window_header .maximizeImg { display: none;}
+		.window_panel .window_frame .window_container { overflow-x: hidden; }
+		.window_panel .window_frame {overflow: hidden !important;}
+		
+		.window_panel .window_header .closeImg:after {
+			content: 'x';
+		}
+		.window_panel .window_header .closeImg { display: none;}
+		
+		.window_panel .window_header .minimizeImg:after {content: '--';}  
+
+		.window_panel .window_header .closeImg,.window_panel .window_header .minimizeImg {
+			background: none;
+			font-size: 12px;
+		}
+		
+		.search_input { margin: 20px 20px;  }
+		.search_input input {z-index: 5000;}
+		
+		#desc_window { }
+		.window_container {padding: 10px; font-size: 11px;  /*background-color: #FFF;*/ color: #000;}
+		.loading { margin: 100px 180px;}
+		.defulat-link-color a {color: #00FFFF; }
+		.defulat-link-color a:visited {color: #800080 ;}
+		.footnote { font-size: 10px; border-top: 1px solid black;}
+		.search_box {border: 1px solid black; width: 230px; margin: 0 auto; font-size: 11px;}
+		
+		/*.window_function_bar {display: none;}*/
+		.window_panel .window_header .minimizeImg {display: none;}  /* for now. it is buggy*/
+		
+		
+		.checkboxes { display: none; position: absolute; top: 7px; left: 135px; }
+		.arrow  { padding-left: 5px; }
+		.checkboxes .top_chck arrow { top: 0px; left: 22px;}
+		.checkboxes .right_chck arrow { top: 5px; left: 29px;}
+		.checkboxes .bottom_chck arrow { top: 12px; left: 22px;}
+		.checkboxes .left_chck arrow { top: 5px; left: 9px;}
+
+		
+		.results_box { padding: 5px;/* height: 100px; */}
+		.results_box li {padding: 0; margin: 0 0 3px 0; list-style: none;}
+		.results_box li  p {margin: 3px 0 5px 0;}
+		.results_box li a {font-size: 1.05em;}
+		.results_box li  a:hover {text-decoration: underline;}
+		
+		.note_box { width: 230px; height: 280px; border: 1px solid #555;}
+		
+		.result_container a {text-decoration: underline;}
+		.result_container .results_box a {text-decoration: none;}
+		
+		.highlight { background-color: #EEE; }
+		
+		#tooltip { position: fixed; bottom: 5px; left: 5px;  display: none; z-index: 100;} 
