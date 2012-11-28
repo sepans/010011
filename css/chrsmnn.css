@@ -1,55 +1,86 @@
 		body { /*background-color: #FFF;*/ padding: 0; margin: 0; color: #000; 
-			font-family:Lucida Console, Monaco, sans-serif; font-size: 12px; width: 1000px;}
+			font-family:Lucida Console, Monaco, sans-serif; font-size: 12px; width: 1000px; overflow: hidden;}
 		li {list-style: none;}
+/*	
+       div {
+          /*  height: 40ex;
+            width: 40em;
+            overflow: hidden;
+            border: 1px solid #444;
+            margin: 3em;
+		overflow: hidden;
+        }
+        div:hover {
+            overflow: auto;
+        }
+        /*div.myautoscroll p {
+            padding-right: 16px;
+        }
+        div.myautoscroll:hover p {
+            padding-right: 0px;
+        }*/
+
+
 		#container {margin: 0 auto; position: relative; width: 1000px;}
 		.underground { border-bottom: 1px solid #FFF;  }
 		h1,h2 {font-size: 12px; font-weight: normal; display: inline; padding: 0 10px;}
 		a, a:visited {color: #000; text-decoration: none;}
 		
 		#start {width: 50px; margin: 0 auto; margin-top: 200px;}
-		#write {  left: 5px; }
+		#write {  right: 20px; top: 35px; z-index: 5000;  display: none;}
 		#load { right: 70px;}
 		#save { right: 20px;}
-		
+	
+		.write_container { /*border: 1px solid black !important;*/ }	
+		.write_container .ui-resizable-se { bottom: 78px; right: 21px; }
+
 		.utilButton {position: fixed; top: 5px;}
 		
-		.write_note_box { width: 560px; height: 530px;}
+		.write_note_box { /*border: 1px;*/ width: 370px; height: 155px; margin: 10px 0;}
 		
 		.window_panel { border: 0px solid #E5E5E5; font-size: 12px; font-weight: normal;}
 		.window_panel .window_header { border-top: 1px  solid #888 !important; border-left: 1px  solid #888 !important;
 						border-right: 0px  !important; border-bottom: 0px  !important;
 						 width: 2px; background-color: #FFF;  height: 3px;
 						/*	background: url('../images/moveCursor.png') 0 0 no-repeat;*/}
-		.window_panel .window_footer { border: 1px;}
+		.window_panel .window_footer { border: 1px; height: 5px;}
 		.ui-widget-header { border: 1px solid #000 !important; background-color: #FFF;}
 		
+		.ui-resizable-se { bottom: 10px; }
 		.ui-icon-gripsmall-diagonal-se {background: #FFF url('../images/resize_corner.png') -5px -5px no-repeat;}
 		
 		.ui-widget-header { background-image: none;}
-		
+	
 		.window_panel .window_header .window_title_text { }
 
 		.window_panel .window_header .maximizeImg { display: none;}
-		.window_panel .window_frame .window_container { overflow-x: hidden; }
+		/*.window_panel .window_frame .window_container { /*overflow-x: hidden;*/ }
 		.window_panel .window_frame {overflow: hidden !important;}
 		
-		.window_panel .window_header .closeImg:after {
+		.window_panel .window_frame:hover  {overflow: auto !important; }
+		*/
+.window_panel .window_header .closeImg:after {
 			content: '-';
 		}
 		.window_panel .window_header .closeImg { color: #888; margin-top: -2px; }
 		
-		.window_panel .window_header .minimizeImg:after {content: '--';}  
+		.window_panel .window_header .closeImg:after {content: '_';}  
 
 		.window_panel .window_header .closeImg,.window_panel .window_header .minimizeImg {
 			background: none;
 			font-size: 12px;
 		}
 		
-		.search_input { margin: 20px 20px;  }
+		.search_input {  position: fixed; right: 20px; top: 20px;  }
 		.search_input input {z-index: 5000;}
 		
 		#desc_window { }
-		.window_container {padding: 0 10px; font-size: 11px;  /*background-color: #FFF;*/ color: #000;}
+		.window_container {padding: 0 5px; font-size: 11px;  /*background-color: #FFF;*/ color: #000;}
+		/*
+		.window_panel .window_frame .window_container { padding: 0 16px 0 3px }		
+
+		.window_panel .window_frame:hover .window_container { padding: 0 0px 0 3px }		
+		*/
 		.loading { margin: 100px 180px;}
 		.defulat-link-color a {color: #00FFFF; }
 		.defulat-link-color a:visited {color: #800080 ;}
@@ -86,3 +117,7 @@
 		h2.suggestion { display: block; margin-top: 20px;}
 		.wiki_suggestions li { font-size: 12px;} 
 		.wiki_suggestions li .rel { width: 100px;  overflow: hidden; display: inline-block; font-size: 10px;} 
+		
+		textarea {
+ 		   resize: none;
+		}

@@ -21,7 +21,7 @@
 				'$word'
 				) AS score
 				FROM dialogs
-				where  INSTR(body, '$word')> 0 order by author";
+				where  INSTR(body, '$word')> 0 order by score desc";
 	
 	$query = $search_query;
 
@@ -64,8 +64,8 @@ while($r = mysql_fetch_assoc($res)) {
 
     //$rows[] = $strings;
 }
-
-$json = json_encode($rows);
+$titledRows = array(results=>$rows);
+$json = json_encode($titledRows);
 
 print $json;
 

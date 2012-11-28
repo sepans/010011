@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>chrsmnn sepans</title>
+	<title>chrsmnn sepans 1</title>
 		
 	<script type="text/javascript" src="js/jquery-1.7.min.js"></script>
 	<script type="text/javascript" src="js/jquery.window.min.js"></script>
@@ -34,16 +34,22 @@
 	var descriptionWindow = [];
 	var grids = [];
 	var writingBox = null;
+	var suggestionBox = null;
+	
+	var suggestionList = '';
+	
 	var WINDOW_WIDTH = 250;
-	var WINDOW_HEIGHT = 600;
+	var WINDOW_HEIGHT = 300;
 
-	var WRITE_WINDOW_WIDTH = 600;
-	var WRITE_WINDOW_HEIGHT = 400;
+	var WRITE_WINDOW_WIDTH = 400;
+	var WRITE_WINDOW_HEIGHT = 250;
+	
+	var searchCount = 0;
 	
 	
 	var BY_TERM_JSON = '/proxy.php?proxy_url='+'http://wikipedia-miner.cms.waikato.ac.nz/services/exploreArticle?outLinks=true%26parentCategories=true%26linkRelatedness=true%26responseFormat=json%26title=';
 
-
+	var THES_JSON = '/proxy.php?proxy_url=http://words.bighugelabs.com/api/2/173aaf6b8cc559ac582b75f5ef7a8c8c/';
 	
 	var windowIndex = 0;
 	
@@ -72,9 +78,12 @@
 	function openWriteBox() {
 	
 		
-		var top = $('body').scrollTop()+50;
-		var left = $('body').scrollLeft()+50;
-		//console.log('top '+top+' left '+left);
+		//var top = $('body').scrollTop()+50;
+		//var left = $('body').scrollLeft()+50;
+		
+		var top= $(window).height()+500;//0.3*WRITE_WINDOW_HEIGHT;//-WRITE_WINDOW_HEIGHT-50;
+		var left= $(window).width()/2-WRITE_WINDOW_WIDTH/2;
+		console.log('write top '+top+' left '+left+ ' window height '+$(window).height());
 		
 
 		if(writingBox==null) {
@@ -86,14 +95,25 @@
 				width: WRITE_WINDOW_WIDTH,
 				height: WRITE_WINDOW_HEIGHT,
 				x:  top,
-				y: left
+				y: left,
+				containerClass: 'write_container',
+				 afterResize: function(wnd) { // a callback function while window is going to resize
+					// console.log('offset '+wnd.getContainer()[0].offsetWidth);
+				 	var width = wnd.getContainer()[0].offsetWidth-50;
+				 	var height = wnd.getContainer()[0].offsetHeight-80;
+				 	//console.log('width to set '+width);
+  				    $(wnd.getContainer().find('.write_note_box')[0]).css('width',width+'px');
+  				    $(wnd.getContainer().find('.write_note_box')[0]).css('height',height+'px');
+  				    //console.log('set to '+$(wnd.getContainer().find('.write_note_box')[0]).css('width'));
+   				}
 			});
 			writingBox.getHeader().find('.minimizeImg').css('display','block');
 			writingBox.getHeader().find('.closeImg').css('display','none');
 			writingBox.getContainer().css('z-index',2050); 
+			writingBox.alignHorizontalCenter();
 		}
 		else {
-			writingBox.move(left,top,false);
+			//writingBox.move(left,top,false);
 			if(writingBox.isMinimized()) {
 				writingBox.restore();
 			}
@@ -104,9 +124,51 @@
 	
 	}
 	
+	
+		function openSuggestionBox(content) {
+	
+		
+		var top = $(window).height()-WINDOW_HEIGHT-10;
+		var left = 0;//$(window).width()-WINDOW_WIDTH-10;
+		console.log('top '+top+' left '+left);
+		
+
+		if(suggestionBox==null) {
+			//var content=$("#write_window").html();
+			suggestionBox = $.window({
+				title: " ",
+				content: content,
+				resizable: true,
+				width: WINDOW_WIDTH+40,
+				height: WINDOW_HEIGHT,
+				x:  left,
+				y: top
+			});
+			suggestionBox.getHeader().find('.minimizeImg').css('display','block');
+			suggestionBox.getHeader().find('.closeImg').css('display','none');
+			suggestionBox.getContainer().css('z-index',2050); 
+			//suggestionBox.alignHorizontalCenter();
+		}
+		else {
+			//suggestionBox.move(left,top,false);
+			if(suggestionBox.isMinimized()) {
+				suggestionBox.restore();
+			}
+			suggestionBox.setContent(content);
+			suggestionBox.getContainer().css('z-index',2050); 
+		}
+		return false;
+
+	
+	}
+	
 	$(document).ready( function() {
 	
 		//openFirstBox();
+		//openWriteBox();
+		
+		$('.search_box').focus();
+		$('.search_box').select();
 	
 	}); 
 	
@@ -179,19 +241,34 @@
 	
 	function search(searchBox)
 	{
-		$.getJSON("search_all.php?keyword="+searchBox.value+"", searchCallback(searchBox));
-		$(searchBox.offsetParent).find('.change_to_note').css('display','none');
+		var term = searchBox.value;
+		searchByTerm(term);
 		
-		setTimeout(function() {
-			searchWikiminer(searchBox.value);
-		},2000);
- 		
+		openWriteBox();
 
+
+ 		
 		
 		return false;
 	}
 	
-	function searchCallback(searchBox) {
+	function searchByTerm(term) {
+	
+		$.getJSON("search_all.php?keyword="+term+"", searchCallback());
+		//$(searchBox.offsetParent).find('.change_to_note').css('display','none');
+		
+		setTimeout(function() {
+			searchWikiminer(term);
+		},2000);
+		
+		setTimeout(function() {
+			thesaurusSyns(term);
+		},2000);	
+		
+		suggestionList = '';
+	}
+	
+	function searchCallback() {
 		return function(data) {
      		////console.log('searchBox:');
 			////console.log(searchBox);
@@ -205,13 +282,20 @@
 			var resultPerAuthorCount = 0;
 			$.each(data, function(i,item){
 				var result = '';
-				if(author!=item.author && authorCount!=-1 && resultPerAuthorCount>5) {
+				if(author!=item.author && authorCount!=-1 && resultPerAuthorCount>15) {
 					results = '<div class="window_container"><div class="result_container"><ul class="results_box">'+results+'</ul></div></div>';
-					var height =   WINDOW_HEIGHT;
-					var randomX = Math.random()*WINDOW_WIDTH/6-WINDOW_WIDTH/10+50;
-					window = openWindow(authorCount*(WINDOW_WIDTH)+randomX,55+Math.random()*60-30,2000, WINDOW_WIDTH, height , results ,  '');
-					var results_height = $(window)[0].getResultContainer().height();
-					$(window)[0].window.resize(WINDOW_WIDTH,Math.min(results_height+50,1200));
+					
+					var height =   WINDOW_HEIGHT+Math.random()*40 ;
+					//var randomX = Math.random()*WINDOW_WIDTH/6-WINDOW_WIDTH/10+50;
+					//window = openWindow(authorCount*(WINDOW_WIDTH)+randomX,55+Math.random()*60-30,2000, WINDOW_WIDTH, height , results ,  '');
+					
+					var windowX = authorCount*(WINDOW_WIDTH)*1.05+(searchCount%2)*WINDOW_WIDTH/2+Math.random()*50-20;
+					
+					var windowY = 55+Math.random()*30-15+searchCount*100;
+					window = openWindow(windowX, windowY ,2000, WINDOW_WIDTH, height , results ,  '');
+					
+					var results_height = Math.min($(window)[0].getResultContainer().height(),WINDOW_HEIGHT);
+					$(window)[0].window.resize(WINDOW_WIDTH,Math.min(results_height+40,1200));
 					results='';
 					resultPerAuthorCount = 0;
 					author = item.author;
@@ -225,8 +309,8 @@
 				if(authorCount==-1) {
 					authorCount = 0;
 				}
-				result=result+'<li><a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+');">'+item.author+', '+item.title+"</a>";
-				result=result+'<input type="hidden" id="search_result_hidden" value="'+item.id+'"/>';
+				result=result+'<li><a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+');return false;">'+item.author+', '+item.title+"</a>";
+//				result=result+'<input type="hidden" id="search_result_hidden" value="'+item.id+'"/>';
 				result=result+'<input type="hidden" id="search_result_hidden_index" value="'+item.wordIndex+'"/>';
 				result=result+'<p>'+item.sentence+'</p></li>';
 				
@@ -238,6 +322,11 @@
         //	var thisWindow =  $(searchBox).parents('.window_container');
 
 		//	$(thisWindow).find('.results_box').html(results);
+		if(authorCount>-1)
+			searchCount++;
+		
+		$('.search_box')[0].value='';
+
 
 		};
 	}
@@ -291,10 +380,10 @@
 		
 		$(target).highlight('search');
 		var container = $(target).parent().parent().parent();
-		var results_height = $(target).height();
-		console.log(results_height);
+		var results_height = Math.min($(target).height()-20,WINDOW_HEIGHT);
+		console.log('height '+results_height);
 		console.log(container);
-		$(container).css('height',results_height+100);
+		$(container).css('height',results_height+40);
 
 
 
@@ -461,11 +550,44 @@ function processTooltipResponse(topicId, response, linkProb) {
 }
 		
 	
+	function thesaurusSyns(term) {
+	
+		$.getJSON(THES_JSON+term+'/json', function(data) {
+				var suggestions_html ='';
+				var index = 0;
+				//console.log(data);
+				for (var key in data) {
+					//console.log(key);
+					//console.log(data[key]);
+					//console.log(data[key].syn);
+					if(key==undefined)
+						continue; 
+					$.each(data[key].syn, function(index,item) {
+						if(index<5) {
+							suggestions_html+='<li><a href="#" onclick="searchByTerm(\''+item+'\');return false;"> '+item+'</li>';
+							//console.log(item.title);
+							index++;
+						}
+					});
 
+				}
+	//			console.log(suggestions_html);
+				//openWindow(40, 500,4000,400,250,suggestions_html,'');
+                                if(suggestionList.length>0) {
+                                        suggestionList+='<li>&nbsp;</li>';
+                                }
+
+				suggestionList+=suggestions_html;
+				//console.log(suggestionList);
+				openSuggestionBox('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
+		});
+	}
 	
 	function searchWikiminer(term) {
 		processArticleJSON(BY_TERM_JSON+term,term);
 	}
+	
+//	http://words.bighugelabs.com/api/2/173aaf6b8cc559ac582b75f5ef7a8c8c/interface/json
 	
 	function processArticleJSON(url,term) {
 	
@@ -473,25 +595,25 @@ function processTooltipResponse(topicId, response, linkProb) {
 				$.getJSON(url, function(data) {
 				json_cache = data;
 				var sortedLinks = sortJSON(data,'relatedness');
-				//articleId= data.id;
 				console.log(data.id);
-				//showTooltip(articleId, $('#center'),null);
-				//$('#tooltip').show();
-				
-				//$('#article').val(data.title);
-
-				//changed = true;
-				//console.log(sortedLinks);
-				var suggestions_html ='<h2 class="suggestion">Suggestions based on Wikipedia connection structure for \''+term+'\': </h2><ul class="wiki_suggestions">';
+				var suggestions_html ='';
 				$.each(sortedLinks, function(index,item) {
-					if(index<10) {
-						suggestions_html+='<li>'+item.title+' <span class="rel">(relevance: '+item.relatedness.toFixed(3)+')</span></li>';
+					if(index<7) {
+						suggestions_html+='<li><a href="#" onclick="searchByTerm(\''+item.title.toLowerCase()+'\');return false;"> '+item.title.toLowerCase()+' </a></li>';
 						//console.log(item.title);
+						index++;
 					}
 				});
-				console.log(suggestions_html);
-				openWindow(40, 300,4000,400,250,
-		suggestions_html,'');
+//				console.log(suggestions_html);
+				if(suggestionList.length>0) {
+					suggestionList+='<li>&nbsp;</li>';
+				}
+				suggestionList+=suggestions_html;
+				//console.log(suggestionList);
+
+				//openWindow(40, 300,4000,400,250,suggestions_html,'');
+				openSuggestionBox('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
+
 			});
 	}
 	
@@ -514,6 +636,7 @@ function processTooltipResponse(topicId, response, linkProb) {
 </head>
 <body>
 	<div id="container">
+		<div id="write" class="utilButton"><a href="#" onclick="openWriteBox();return false;">input box</a></div>
 	<!--	<div id="start"><a href="#" onclick="openFirstBox();">start</a></div>
 		
 		<div id="write" class="utilButton"><a href="#" onclick="openWriteBox();return false;">write</a></div>
@@ -521,7 +644,7 @@ function processTooltipResponse(topicId, response, linkProb) {
 		<div id="load" class="utilButton"><a href="#" onclick="loadReading();return false;">load</a></div>-->
 		
 	<div class="search_input">
-		<input type="text" class="search_box" onkeyup="if (event.keyCode == 13) {search(this);}"/>
+		<input type="text" class="search_box" tabindex="0" onkeyup="if (event.keyCode == 13) {search(this);}"/>
 	</div>
 		
  
@@ -563,12 +686,14 @@ function processTooltipResponse(topicId, response, linkProb) {
 	
 	<div id="write_window" style="display:none">
 		<div class="window_container">
-			<a href="#" onclick="addSelectionToBox()">Add selected to Box</a>
 			<textarea class="write_note_box">
 			
 			</textarea>
+			<!--<a href="#" onclick="addSelectionToBox()">Add selection to notes</a>-->
 		</div>
 	</div>
+	
+	
 	
 
 
