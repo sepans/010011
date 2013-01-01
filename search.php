@@ -49,7 +49,7 @@
 	$res = MySQL_query($query);
     $rows = array();
 	while($r = mysql_fetch_assoc($res)) {
-		if($wordIndex!=null) {
+		if($wordIndex!=null && $wordIndex!='undefined') {
 			// trim result
 			$fullBody = $r['body'];
 			$words = explode(" ", $fullBody);

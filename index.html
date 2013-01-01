@@ -11,7 +11,7 @@
 	
 	<link type="text/css" href="css/jquery.jscrollpane.css" rel="stylesheet" media="all" />
 	
-	<link rel="stylesheet" href="css/wikify.css" type="text/css">
+<!--	<link rel="stylesheet" href="css/wikify.css" type="text/css">-->
 	
 	<link rel="stylesheet" href="css/chrsmnn.css" type="text/css">
 
@@ -81,9 +81,9 @@
 		//var top = $('body').scrollTop()+50;
 		//var left = $('body').scrollLeft()+50;
 		
-		var top= $(window).height()+500;//0.3*WRITE_WINDOW_HEIGHT;//-WRITE_WINDOW_HEIGHT-50;
+		var top= $(window).height()-0.7*WRITE_WINDOW_HEIGHT;
 		var left= $(window).width()/2-WRITE_WINDOW_WIDTH/2;
-		console.log('write top '+top+' left '+left+ ' window height '+$(window).height());
+		//alert('write top '+top+' left '+left+ ' window height '+$(window).height()+ ' document height '+$(document).height());
 		
 
 		if(writingBox==null) {
@@ -94,23 +94,22 @@
 				resizable: true,
 				width: WRITE_WINDOW_WIDTH,
 				height: WRITE_WINDOW_HEIGHT,
-				x:  top,
-				y: left,
+				x:  left,
+				y: top,
+				z: 3000,
 				containerClass: 'write_container',
-				 afterResize: function(wnd) { // a callback function while window is going to resize
-					// console.log('offset '+wnd.getContainer()[0].offsetWidth);
+				 afterResize: function(wnd) { 
+				 
 				 	var width = wnd.getContainer()[0].offsetWidth-50;
 				 	var height = wnd.getContainer()[0].offsetHeight-80;
-				 	//console.log('width to set '+width);
   				    $(wnd.getContainer().find('.write_note_box')[0]).css('width',width+'px');
   				    $(wnd.getContainer().find('.write_note_box')[0]).css('height',height+'px');
-  				    //console.log('set to '+$(wnd.getContainer().find('.write_note_box')[0]).css('width'));
    				}
 			});
 			writingBox.getHeader().find('.minimizeImg').css('display','block');
 			writingBox.getHeader().find('.closeImg').css('display','none');
 			writingBox.getContainer().css('z-index',2050); 
-			writingBox.alignHorizontalCenter();
+			//writingBox.alignHorizontalCenter();
 		}
 		else {
 			//writingBox.move(left,top,false);
@@ -124,7 +123,7 @@
 	
 	}
 	
-	
+	/*
 		function openSuggestionBox(content) {
 	
 		
@@ -161,6 +160,7 @@
 
 	
 	}
+	*/
 	
 	$(document).ready( function() {
 	
@@ -173,34 +173,7 @@
 	}); 
 	
 	
-	function openFirstBox() {
-	   
-	   var search_content=$("#search_window").html();
-	   	openWindow(10, 0,WINDOW_WIDTH,2000,100,
-		search_content,'');
 
-	   /* $('#start').hide();
-			
-		var search_content=$("#search_window").html();
-
-
-
-		openWindow(10, $(document).height()/2 -WINDOW_HEIGHT/2,WINDOW_WIDTH,WINDOW_HEIGHT,
-		search_content,'');
-		openWindow(WINDOW_WIDTH+20, $(document).height()/2 -WINDOW_HEIGHT/2,WINDOW_WIDTH,WINDOW_HEIGHT,
-		search_content,'');
-		openWindow(2*WINDOW_WIDTH+30, $(document).height()/2 -WINDOW_HEIGHT/2,WINDOW_WIDTH,WINDOW_HEIGHT,
-		search_content,'');
-		openWindow(3*WINDOW_WIDTH+40, $(document).height()/2 -WINDOW_HEIGHT/2,WINDOW_WIDTH,WINDOW_HEIGHT,
-		search_content,'');
-		var grid4=openWindow(4*WINDOW_WIDTH+50, $(document).height()/2 -WINDOW_HEIGHT/2,WINDOW_WIDTH,WINDOW_HEIGHT,
-		search_content,'');
-		
-		grid4.changeMode('note');
-	*/
-
-		
-	}
 	
 	function getGridForElement(element) {
 	
@@ -209,8 +182,8 @@
 		return textContent = grids[gridIndex];
 	}
 
-	function openWindow(x,y,z, width, height , content ,  title) {
-		
+	function openWindow(x,y,z, width, height , content ,  title, containerClassName) {
+		console.log('ccn '+containerClassName);
 		descriptionWindow[windowIndex] = $.window({
 			title: title!=null ? title : " ",
 			content: content,
@@ -218,21 +191,12 @@
 			width: width,
 			height: height,
 			x:  x,
-			y: y
+			y: y,
+			containerClass: containerClassName
 		});
 		grids[windowIndex] = new GridElement(windowIndex,descriptionWindow[windowIndex]); 
 
-//jscroll stuff
-		//console.log(descriptionWindow[windowIndex].getContainer().find('.result_container'));
-//		descriptionWindow[windowIndex].getContainer().find('.result_container').jScrollPane();
-// not working
 
-
-//descriptionWindow[windowIndex].getContainer().find('.result_container').dragscrollable({dragSelector:'.results_box'});
-//not working
-//descriptionWindow[windowIndex].getContainer().dragscrollable({dragSelector:'.result_container'});
-//doing something
-	//TODO	$(descriptionWindow[windowIndex]).add($('#checkbox_container'));
 		windowIndex++;
 		return grids[windowIndex-1];
 
@@ -292,10 +256,10 @@
 					var windowX = authorCount*(WINDOW_WIDTH)*1.05+(searchCount%2)*WINDOW_WIDTH/2+Math.random()*50-20;
 					
 					var windowY = 55+Math.random()*30-15+searchCount*100;
-					window = openWindow(windowX, windowY ,2000, WINDOW_WIDTH, height , results ,  '');
+					window = openWindow(windowX, windowY ,2000, WINDOW_WIDTH, height , results ,  '', 'search_container');
 					
 					var results_height = Math.min($(window)[0].getResultContainer().height(),WINDOW_HEIGHT);
-					$(window)[0].window.resize(WINDOW_WIDTH,Math.min(results_height+40,1200));
+					//$(window)[0].window.resize(WINDOW_WIDTH,Math.min(results_height+40,1200));
 					results='';
 					resultPerAuthorCount = 0;
 					author = item.author;
@@ -309,7 +273,8 @@
 				if(authorCount==-1) {
 					authorCount = 0;
 				}
-				result=result+'<li><a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+');return false;">'+item.author+', '+item.title+"</a>";
+				result=result+'<li><a href="#" onclick="list_titles(this,\''+item.author+'\');return false;">'+item.author+'</a>'
+								 +'<a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+');return false;">'+item.title+"</a>";
 //				result=result+'<input type="hidden" id="search_result_hidden" value="'+item.id+'"/>';
 				result=result+'<input type="hidden" id="search_result_hidden_index" value="'+item.wordIndex+'"/>';
 				result=result+'<p>'+item.sentence+'</p></li>';
@@ -326,6 +291,8 @@
 			searchCount++;
 		
 		$('.search_box')[0].value='';
+		
+		$('.write_container .write_note_box').focus();
 
 
 		};
@@ -340,42 +307,58 @@
 		
 		//var grid = getGridForElement(result);
 		//grid.changeMode('search_result');
+		console.log('wi '+wordIndex);
 		
-		var target = result.parentNode.parentNode.parentNode;
+		var target = result.parentNode.parentNode;//.parentNode;
 		$.getJSON("search.php?id="+article_id+"&wordIndex="+wordIndex, searchResultCallback($(target)));
 
 		//result.parentNode.parentNode.parentNode.innerHTML = $('#desc_window .window_container').html();
 		return false;
 	}
-/*	function search_result(result)
-	{
-		//alert(result.nextElementSibling.value);
 
-		//todo pass word and index to searchResultCallback
-		
-		//var grid = getGridForElement(result);
-		//grid.changeMode('search_result');
-		
-		var article_id = $(result.parentNode.parentNode).find('.search_result_hidden')[0].value;
-		var target = result.parentNode.parentNode.parentNode;
-		$.getJSON("search.php?id="+article_id+"", searchResultCallback($(target)));
-
-		//result.parentNode.parentNode.parentNode.innerHTML = $('#desc_window .window_container').html();
-		return false;
-	}*/
 	
 	function searchResultCallback(target) {
 		return function(data) {
 		////console.log('callback');
+			console.log('target');
+			console.log(target);
 			var dataItem = data[0];
 			var result = '';
 			var body = dataItem.body;
 			body.replace(/â€™/g,'\'')
-			result = '<li><h2>'+dataItem.title+'</h2><p>'+body+'</p></li>';
+			result = '<div class="text_section"><h2>'+dataItem.title+'</h2><p>'+body+'</p></div>';
 			
 		////console.log(result);
 		////console.log(target);
-			
+		
+		var container = $(target).parent().parent().parent().parent();
+		if(container.parent().parent()) { // it is a result from a list not search
+			console.log('list it is ');
+			var container = $(target).parent().parent();
+		}
+		console.log('container');
+		console.log(container);
+		var top= $(container).position().top;
+		var left = $(container).position().left;
+		console.log('top '+top+' left '+left);
+		var grid =openWindow(left+WINDOW_WIDTH+20,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
+		
+		var window = grid.window;
+		 
+		 var height =$(window.getContainer()).find('.text_section').height();
+		 console.log(height);
+		// console.log(window.width);
+		 if(height<1000) {
+			 window.resize(WINDOW_WIDTH,height*1.1+20);
+			 $(window.getContainer()).find('.window_frame').height(height+10);
+	
+			$(window.getContainer()).find('.text_section').highlight('search');
+		}
+
+		
+		
+		
+		/*	
 		target.html(result);
 		
 		$(target).highlight('search');
@@ -385,7 +368,7 @@
 		console.log(container);
 		$(container).css('height',results_height+40);
 
-
+*/
 
 		};
 	}
@@ -416,139 +399,79 @@
 		
 		//descriptionWindow[windowIndex-1]
 	}
-	function changeToNote(link) {
-		
-		
-		var grid = getGridForElement(link);
 
-		grid.changeMode('note');
+		
+
+
+	function list_titles(result,author)
+	{
+		//alert(result.nextElementSibling.value);
+
+		//todo pass word and index to searchResultCallback
+		
+		//var grid = getGridForElement(result);
+		//grid.changeMode('search_result');
+		
+		var target = result.parentNode.parentNode;//.parentNode;
+		$.getJSON("list.php", listTitlesCallback($(target)));
+
+		//result.parentNode.parentNode.parentNode.innerHTML = $('#desc_window .window_container').html();
 		return false;
-		/*
-		
-		var thisWindow =  link.offsetParent.offsetParent;
-
-		$(thisWindow).find('.search_box').remove();
-		$(thisWindow).find('.results_box').remove();
-		$('<textarea/>').addClass('note_box').insertAfter($(thisWindow).find('.checkboxes'));
-		$(link).css('display','none');
-		
-		*/
-		//$(thisWindow).find('.window_container').add('textarea');
-		
-		
 	}
-		
-
-	function changeToWiki(link) {
-
-		//var thisWindow =  $(link).parents('.window_container');
-		//var gridIndex = $(thisWindow).find('.grid_index').val();
-		
-		var grid = getGridForElement(link);
-
-
-		var textContent = grid.getTextContent();
-//		console.log(textContent);
-
-		wikifyText(textContent, grid.index);
-
-		
-		return false;
-
-		
-	}
-	
-	function wikifyText(text,gridIndex) {
-		var wikify_url = '/proxy.php';
-		//?proxy_url='+'http://wikipedia-miner.cms.waikato.ac.nz/services/wikify?source='+text;
-		var proxy_url = '/proxy.php?proxy_url=http://wikipedia-miner.cms.waikato.ac.nz/services/wikify';
-		
-		$.post(proxy_url, {source: text.substring(0,10000), minProbability : 0.2, repeatMode: '	FIRST_IN_REGION',
-		responseFormat: 'DIRECT', linkFormat: 'html_id_weight', tooltips: true},
-		(function(thisi) {
-          return function(data) {
-             wikifyCallback(data, thisi);
-          };
-       }(gridIndex)) // calling the function with the current value
-    );
 
 	
-	}
-	
-	function wikifyCallback( data, inx) {
-		//console.log('xml '+data+' index '+inx);
-		var box = grids[inx].getResultContainer();
-		box.html(data);
-		box.find('a').css('color','#555');
-		box.find('a').each(function (index, element) {
-			var link = $(element).attr('href');
-			var mouseoverContent = 'showDescription('+$(element).attr('pageid')+','+index+');return false;';
-			var mouseoutContent = '$(\'#tooltip\').hide();';
-			//console.log(link);
-			//$(element).attr('#');
-			$(element).attr("target", "_blank");
-			$(element).mouseover(new Function(mouseoverContent));
-			$(element).mouseout(new Function(mouseoutContent));
-			//$(element).
+	function listTitlesCallback(target) {
+		return function(data) {
+
+			var result = '<ul class="title_list">';
+			console.log('target');
+			console.log(target);
+			$.each(data, function(index, value) { 
+				
+				result += '<li><a href="#" onclick="search_result(this,'+value.id+');return false">'+value.author+' '+value.title+'</a></li>';
 			
-		});
-	
-	}
-	
-		function showDescription(pageid,index) {
-		//console.log($($('#lucky a')[index]));
-		showTooltip(pageid, null, null);
-	}
-	
-	function showTooltip(topicId, object, linkProb) {
+			});
+			result +='</ul>';
+		////console.log(target);
 		
-	var tooltip = $("#tooltip") ;
-
-	/*var top = object.offset().top + object.height() ;
-	var left = object.offset().left ;
-	
-	// if this is too far right to fit on page, move it to be against right side of page
-	if (left + tooltip.width() > $(window).width())
-		left = $(window).width() - tooltip.width() - 30 ;
-			
-	tooltip.css("top", top + "px") ;
-	tooltip.css("left", left + "px") ;*/
-	
-	tooltip.html("<div class='loading'></div>") ;
-	tooltip.show() ;
-	
-	var escapedUrl = "/proxy.php?proxy_url=http://wikipedia-miner.cms.waikato.ac.nz/services/exploreArticle?id="+topicId+"%26definition=true%26definitionLength=SHORT%26images=true%26maxImageWidth=100%26maxImageHeight=100"
-	
-	$.get(escapedUrl,  function(response){
-		processTooltipResponse(topicId, response, linkProb);
-	});	
-}
-
-function processTooltipResponse(topicId, response, linkProb) {
-	
-	var tooltip = $("#tooltip") ;
-	
-	tooltip.empty() ;
-	
-	var image = $(response).find("image") ;
-	if (image.length > 0) {
-		tooltip.append("<img src='" + image.attr("url") + "'></img>") ;
-	}
-	
-	var definition = $(response).find("definition") ;
-	if (definition.length > 0 && image.length==0) {
-		tooltip.append(definition.text()) ;
-	}
-	
-	if (linkProb != null)
-		tooltip.append("<p><em>" + linkProb + "</em> probability of being a link") ;
-	
-	$(tooltip).append("<br/>") ;
-	
-	$('#loading').hide();
-	
-}
+		var container = $(target).parent().parent().parent().parent();
+		//console.log('container');
+		//console.log(container);
+		var top= $(container).position().top;
+		var left = $(container).position().left;
+		console.log('top '+top+' left '+left);
+		var grid =openWindow(left+WINDOW_WIDTH+20,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
 		
+		//var window = grid.window;
+		 
+		/* var height =$(window.getContainer()).find('.text_section').height();
+		 console.log(height);
+		// console.log(window.width);
+		 
+		 window.resize(WINDOW_WIDTH,height*1.1+20);
+		 $(window.getContainer()).find('.window_frame').height(height+10);
+
+		$(window.getContainer()).find('.text_section').highlight('search');*/
+
+		
+		
+		
+		/*	
+		target.html(result);
+		
+		$(target).highlight('search');
+		var container = $(target).parent().parent().parent();
+		var results_height = Math.min($(target).height()-20,WINDOW_HEIGHT);
+		console.log('height '+results_height);
+		console.log(container);
+		$(container).css('height',results_height+40);
+
+*/
+
+		};
+	}
+
+	
 	
 	function thesaurusSyns(term) {
 	
@@ -579,7 +502,8 @@ function processTooltipResponse(topicId, response, linkProb) {
 
 				suggestionList+=suggestions_html;
 				//console.log(suggestionList);
-				openSuggestionBox('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
+				//openSuggestionBox('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
+				$('.write_container .suggestions').html('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
 		});
 	}
 	
@@ -612,7 +536,8 @@ function processTooltipResponse(topicId, response, linkProb) {
 				//console.log(suggestionList);
 
 				//openWindow(40, 300,4000,400,250,suggestions_html,'');
-				openSuggestionBox('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
+				//openSuggestionBox('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
+				$('.write_container .suggestions').html('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
 
 			});
 	}
@@ -636,8 +561,8 @@ function processTooltipResponse(topicId, response, linkProb) {
 </head>
 <body>
 	<div id="container">
-		<div id="write" class="utilButton"><a href="#" onclick="openWriteBox();return false;">input box</a></div>
-	<!--	<div id="start"><a href="#" onclick="openFirstBox();">start</a></div>
+	<!--	<div id="write" class="utilButton"><a href="#" onclick="openWriteBox();return false;">input box</a></div>
+		<div id="start"><a href="#" onclick="openFirstBox();">start</a></div>
 		
 		<div id="write" class="utilButton"><a href="#" onclick="openWriteBox();return false;">write</a></div>
 		<div id="save" class="utilButton"><a href="#" onclick="saveReading();return false;">save</a></div>
@@ -649,43 +574,13 @@ function processTooltipResponse(topicId, response, linkProb) {
 		
  
 
-	<div id="search_checkbox_container" style="display: none" >
-		<span class="search_checkboxes">
-			<a href="#" onclick="search_result(this);" class="arrow"   title="open text in the same box">o</a>
-			<a href="#" class="left_chck arrow" onclick="searchResultNewBox(this);return false" title="open text on left">&#x2190;</a>
-			<a href="#" class="top_chck arrow" onclick="searchResultNewBox(this);return false" title="open text above">&#x2191;</a>
-			<a href="#" class="right_chck arrow" onclick="searchResultNewBox(this);return false" title="open text on right">&#x2192;</a>
-			<a href="#" class="bottom_chck arrow" onclick="searchResultNewBox(this);return false" title="open text below">&#x2193;</a>
-		</span>
-	</div>
-	<div id="checkbox_container" style="display: none;">
-	<div class="checkboxes">
-				<a href="#" class="left_chck arrow" onclick="openAdjacentWindow(this);return false" title="open new box on left">&#x2190;</a>
-				<a href="#" class="top_chck arrow" onclick="openAdjacentWindow(this);return false" title="open new box above">&#x2191;</a>
-				<a href="#" class="right_chck arrow" onclick="openAdjacentWindow(this);return false" title="open new box on right">&#x2192;</a>
-				<a href="#" class="bottom_chck arrow" onclick="openAdjacentWindow(this);return false" title="open new box below">&#x2193;</a>
-	</div>
-	</div>
 
-	<div id="search_window" style="display:none">
-		<div class="window_container">
-			<input type="hidden" class="grid_index" value="0"/>
-			<div class="checkboxes">
-				<a class="change_to_note" href="#" onclick="changeToNote(this);" title="change to note box">n</a>
-				<a class="change_to_wiki" href="#" onclick="changeToWiki(this);" title="change to wiki box">w</a>
-				<a href="#" class="left_chck arrow" onclick="openAdjacentWindow(this);return false" title="open new box on left">&#x2190;</a>
-				<a href="#" class="top_chck arrow" onclick="openAdjacentWindow(this);return false" title="open new box above">&#x2191;</a>
-				<a href="#" class="right_chck arrow" onclick="openAdjacentWindow(this);return false" title="open new box on right">&#x2192;</a>
-				<a href="#" class="bottom_chck arrow" onclick="openAdjacentWindow(this);return false" title="open new box below">&#x2193;</a>
-			</div>
-			<input type="text" class="search_box" onkeyup="if (event.keyCode == 13) {search(this);}"/>
-			<div class="result_container"><ul class="results_box"></ul></div>
-		</div>
-	</div>
 
 	
 	<div id="write_window" style="display:none">
-		<div class="window_container">
+		<div class="write_container window_container">
+			<div class="suggestions">
+			</div>
 			<textarea class="write_note_box">
 			
 			</textarea>
@@ -693,6 +588,7 @@ function processTooltipResponse(topicId, response, linkProb) {
 		</div>
 	</div>
 	
+
 	
 	
 
