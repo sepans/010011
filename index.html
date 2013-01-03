@@ -42,7 +42,7 @@
 	var WINDOW_HEIGHT = 300;
 
 	var WRITE_WINDOW_WIDTH = 400;
-	var WRITE_WINDOW_HEIGHT = 250;
+	var WRITE_WINDOW_HEIGHT = 255;
 	
 	var searchCount = 0;
 	
@@ -52,6 +52,52 @@
 	var THES_JSON = '/proxy.php?proxy_url=http://words.bighugelabs.com/api/2/173aaf6b8cc559ac582b75f5ef7a8c8c/';
 	
 	var windowIndex = 0;
+	
+		$(document).ready( function() {
+	
+		//openFirstBox();
+		//openWriteBox();
+		
+		$('.search_box').focus();
+		$('.search_box').select();
+		
+		/*
+		$( "#dialog-form" ).dialog({
+            autoOpen: false,
+            height: 100,
+            width: 100,
+            modal: false,
+            buttons: {
+                "send email": function() {
+                    var bValid = true;
+                    //allFields.removeClass( "ui-state-error" );
+ 
+                    //bValid = bValid && checkLength( email, "email", 6, 80 );
+ 
+                    bValid = bValid && checkRegexp( email, /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i, "eg. ui@jquery.com" );
+ 
+                    if ( bValid ) {
+					  $.ajax({
+						url: "save.php?method=email&content="+content+"&to="+to,
+						context: document.body
+						}).done(function() { 
+						  console.log('ajax done');
+					  });
+                      $( this ).dialog( "close" );
+                    }
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            close: function() {
+               // allFields.val( "" ).removeClass( "ui-state-error" );
+            }
+        });
+        */
+	
+	}); 
+
 	
 	function addSelectionToBox() {
 	
@@ -81,7 +127,7 @@
 		//var top = $('body').scrollTop()+50;
 		//var left = $('body').scrollLeft()+50;
 		
-		var top= $(window).height()-0.7*WRITE_WINDOW_HEIGHT;
+		var top= $(window).height()-WRITE_WINDOW_HEIGHT;
 		var left= $(window).width()/2-WRITE_WINDOW_WIDTH/2;
 		//alert('write top '+top+' left '+left+ ' window height '+$(window).height()+ ' document height '+$(document).height());
 		
@@ -108,8 +154,10 @@
 			});
 			writingBox.getHeader().find('.minimizeImg').css('display','block');
 			writingBox.getHeader().find('.closeImg').css('display','none');
-			writingBox.getContainer().css('z-index',2050); 
+			//writingBox.getContainer().css('z-index',2050); 
 			//writingBox.alignHorizontalCenter();
+			
+			//document.getElementById("write_textarea").value="";
 		}
 		else {
 			//writingBox.move(left,top,false);
@@ -162,15 +210,6 @@
 	}
 	*/
 	
-	$(document).ready( function() {
-	
-		//openFirstBox();
-		//openWriteBox();
-		
-		$('.search_box').focus();
-		$('.search_box').select();
-	
-	}); 
 	
 	
 
@@ -183,7 +222,6 @@
 	}
 
 	function openWindow(x,y,z, width, height , content ,  title, containerClassName) {
-		console.log('ccn '+containerClassName);
 		descriptionWindow[windowIndex] = $.window({
 			title: title!=null ? title : " ",
 			content: content,
@@ -220,6 +258,8 @@
 	
 		$.getJSON("search_all.php?keyword="+term+"", searchCallback());
 		//$(searchBox.offsetParent).find('.change_to_note').css('display','none');
+
+		$.getJSON("http://search.twitter.com/search.json?rpp=5&include_entities=true&result_type=mixed&q="+term+"&callback=?", searchTwitterCallback());
 		
 		setTimeout(function() {
 			searchWikiminer(term);
@@ -231,6 +271,15 @@
 		
 		suggestionList = '';
 	}
+	
+	function searchTwitterCallback() {
+		return function(data) {
+			if(data.results.lenght>0) {
+				console.log(data.results[0].text);
+			}
+		};	
+	}
+	
 	
 	function searchCallback() {
 		return function(data) {
@@ -340,7 +389,7 @@
 		console.log(container);
 		var top= $(container).position().top;
 		var left = $(container).position().left;
-		console.log('top '+top+' left '+left);
+		console.log('container top '+top+' left '+left);
 		var grid =openWindow(left+WINDOW_WIDTH+20,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
 		
 		var window = grid.window;
@@ -555,6 +604,58 @@
 		return ret;
 	}
 	
+	function save_to_desktop() {
+		var content = $('.window_frame #write_textarea').val();
+		console.log('content '+content);
+		/*$.ajax({
+  			url: "save.php?method=desktop&content="+content,
+			context: document.body
+			}).done(function() { 
+			  console.log('ajax done');
+		});*/
+		window.open("save.php?method=desktop&content="+content,"_self")
+		
+	
+	}
+	
+	function send_email() {
+		var content = $('.window_frame #write_textarea').val();
+		console.log('content '+content);
+		/*$.ajax({
+  			url: "save.php?method=desktop&content="+content,
+			context: document.body
+			}).done(function() { 
+			  console.log('ajax done');
+		});*/
+		
+		//$( "#dialog-form" ).dialog( "open" );
+
+		
+		var to = prompt('email address (separated by comma)');
+		if(to!=null && to!='') {
+		  $.ajax({
+  			url: "save.php?method=email&content="+content+"&to="+to,
+			context: document.body
+			}).done(function() { 
+			  console.log('ajax done');
+		  });
+		
+		}
+		
+		//	window.open("save.php?method=email&content="+content+"&to="+to,"_self")
+	
+	
+	}
+	
+	function checkRegexp( o, regexp, n ) {
+            if ( !( regexp.test( o.val() ) ) ) {
+                o.addClass( "ui-state-error" );
+                updateTips( n );
+                return false;
+            } else {
+                return true;
+            }
+        }
 	
 	
 </script>
@@ -581,14 +682,32 @@
 		<div class="write_container window_container">
 			<div class="suggestions">
 			</div>
-			<textarea class="write_note_box">
+			<textarea class="write_note_box" id="write_textarea">&nbsp;</textarea>
 			
-			</textarea>
 			<!--<a href="#" onclick="addSelectionToBox()">Add selection to notes</a>-->
+			<span class="save">
+				<!--<a href="#" >&nbsp;</a>-->
+			<ul class="save-options">
+					<li><a href="#" onclick="save_to_desktop();return false;">desktop</a></li>
+					<li><a href="#" onclick="send_email();return false;">email</a></li>
+			</ul>
+			
 		</div>
 	</div>
+	<!--
+	<div id="dialog-form" >
 	
+		<form>
+		<fieldset>
+			
+			<label for="email">Email</label>
+			<input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all" />
+		</form>
+		</fieldset>
 
+	</div>
+	
+-->
 	
 	
 

@@ -34,7 +34,7 @@
 
 		.utilButton {position: fixed; top: 5px;}
 		
-		.write_note_box { /*border: 1px;*/ width: 370px; height: 155px; margin: 10px 0;}
+		.write_note_box { /*border: 1px;*/ width: 370px; height: 155px; margin: 10px 0 0 0;}
 		
 		.window_panel { border: 0px solid #E5E5E5; font-size: 12px; font-weight: normal;}
 		.window_panel .window_header { border-top: 1px  solid #999 !important; border-left: 1px  solid #999 !important;
@@ -122,12 +122,14 @@
 		
 		
 		.write_container { /*border: 1px solid #444;*/ z-index: 3000; }	
-		.write_container .ui-resizable-se { bottom: 78px; right: 21px; }
+		.write_container .ui-resizable-se {/* bottom: 78px; */right: 10px; }
+		.window_panel .window_frame .write_container { padding-right: 0; overflow: hidden;}
+		.window_panel .window_frame:hover .write_container { padding-right: 0;}
 		
 		.write_container .window_function_bar { display: none;}
 
 		h2.suggestion { display: block; margin-top: 20px;}
-		.wiki_suggestions { margin: 0; padding: 0;}
+		.wiki_suggestions { margin: 0; padding: 0; min-height: 30px;}
 		.wiki_suggestions li {     display: inline;list-style: none outside none; padding-right: 5px;} 
 		.wiki_suggestions li a { color: #555555 ;}
 		.wiki_suggestions li .rel { width: 100px;  overflow: hidden; display: inline-block; font-size: 10px;} 
@@ -148,3 +150,8 @@
 	/*	.window_panel .window_frame:hover .text_section { padding: 0 0px 0 3px } */		
 	
 	.window_panel .window_header .window_function_bar { top: 0;}
+	
+	.save { display: inline-block; width: 16px; height: 16px; margin: 2px 5px; background: url('../images/email-icon.png') 0 0 no-repeat;}
+	.save {width: 16px; height: 16px; position: relative;}
+	.save .save-options {display: none;   left: 15px; position: absolute; top: -14px; font-size: 12px; padding: 0 5px; margin: 0;}
+	.save:hover .save-options {display: block;}
