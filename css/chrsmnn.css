@@ -61,8 +61,12 @@
 
 		
 		.window_panel .window_frame .window_container { padding: 0 16px 0 3px }		
-
-		.window_panel .window_frame:hover .window_container { padding: 0 0px 0 3px }		
+		.window_panel .window_frame:hover .window_container { padding: 0 0px 0 3px }	/* for search result*/
+		
+		.window_panel .window_frame .text_section { padding: 0px 0px 0 3px; }
+		/*window_panel .window_frame:hover .text_section { padding: 0px 0px 0 3px }
+		.window_panel .window_frame .text_section { padding: 0px 17px 0 3px }		
+		.window_panel .window_frame:hover .text_section { padding: 0 0px 0 3px }*/		/* for text*/
 		
 		
 		
@@ -82,8 +86,8 @@
 			font-size: 12px;
 		}
 		
-		.search_input {  position: fixed; right: 20px; top: 20px;  }
-		.search_input input {z-index: 5000;}
+		.search_input {  position: fixed; right: 20px; top: 20px;z-index: 5000;  }
+		.search_input input {}
 		
 		#desc_window { }
 		.window_container {padding: 0 5px; font-size: 11px;  /*background-color: #FFF;*/ color: #000;}
@@ -122,11 +126,14 @@
 		
 		
 		.write_container { /*border: 1px solid #444;*/ z-index: 3000; }	
-		.write_container .ui-resizable-se {/* bottom: 78px; */right: 10px; }
 		.window_panel .window_frame .write_container { padding-right: 0; overflow: hidden;}
 		.window_panel .window_frame:hover .write_container { padding-right: 0;}
 		
 		.write_container .window_function_bar { display: none;}
+		
+		#window_0 { border: 1px solid black; }
+		.write_container .ui-resizable-se { bottom: -15px; right: -2px; }
+		.write_container .window_panel .window_footer {height: 0;}
 
 		h2.suggestion { display: block; margin-top: 20px;}
 		.wiki_suggestions { margin: 0; padding: 0; min-height: 30px;}
@@ -140,12 +147,12 @@
  		   resize: none;
  		   border: 0px;
  		   overflow: hidden;
+ 		   outline: none;
 		}
 		
 		.text_section { font-size: 11px; }
 		.text_section h2 { padding: 0; }
 
-		.window_panel .window_frame .text_section { padding: 0px 17px 0 3px }		
 		
 		.title_list { padding: 0 0 0 2px; margin: 0; font-size: 11px;}
 		.title_list a:hover {text-decoration: underline;}
@@ -153,9 +160,10 @@
 	
 	.window_panel .window_header .window_function_bar { top: 0;}
 	
-	.save { display: inline-block; width: 16px; height: 16px; margin: 2px 5px; background: url('../images/email-icon.png') 0 0 no-repeat;}
+	.save { display: inline-block; width: 16px; height: 16px; margin: 2px 5px;  }
+	.write_container:hover .save { background: url('../images/email-icon.png') 0 0 no-repeat; opacity: 0.6; }
 	.save {width: 16px; height: 16px; position: relative;}
-	.save .save-options {display: none;   left: -5px; position: absolute; top: -29px; font-size: 12px; padding: 0 5px; margin: 0;}
+	.save .save-options {display: none;   left: -5px; position: absolute; top: -42px; font-size: 12px; padding: 0 5px; margin: 0;}
 	.save:hover .save-options {display: block;}
 	
 	#twitter_result { display: inline-block; width: 300px; padding-left: 20px; color: #555;}
