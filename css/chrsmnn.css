@@ -34,14 +34,14 @@
 
 		.utilButton {position: fixed; top: 5px;}
 		
-		.write_note_box { /*border: 1px;*/ width: 370px; height: 155px; margin: 10px 0 0 0;}
+		.write_note_box { /*border: 1px;*/ width: 370px; height: 140px; margin: 0px 0 0 0;}
 		
 		.window_panel { border: 0px solid #E5E5E5; font-size: 12px; font-weight: normal;}
-		.window_panel .window_header { border-top: 1px  solid #999 !important; border-left: 1px  solid #999 !important;
+		.window_panel .window_header { border-top: 1px  solid #CCC !important; border-left: 1px  solid #CCC !important;
 						border-right: 0px  !important; border-bottom: 0px  !important;
 						/*border: 1px  solid #888 !important;*/
 						
-						 width: 5px; background-color: #FFF;  height: 5px;
+						 width: 10px; background-color: #FFF;  height: 5px;
 						/*	background: url('../images/moveCursor.png') 0 0 no-repeat;*/}
 		.window_panel .window_footer { border: 1px; height: 5px;}
 		.ui-widget-header { border: 1px solid #000 !important; background-color: #FFF;}
@@ -73,7 +73,7 @@
 .window_panel .window_header .closeImg:after {
 			content: '-';
 		}
-		.window_panel .window_header .closeImg { color: #888; margin-top: -15px; margin-right: -5px; }
+		.window_panel .window_header .closeImg { color: #888; margin-top: -10px; margin-right: 30px; padding-bottom: 6px; }
 		
 		.window_panel .window_header .closeImg:after {content: '_';}  
 
@@ -116,7 +116,7 @@
 		.result_container a {text-decoration: underline;}
 		.result_container .results_box a {text-decoration: none;}
 		
-		.highlight { color: #888; background-color: #F8F8F8; }
+		.highlight { /*color: #888; background-color: #F8F8F8;*/ color: #0000FF; }
 		
 		#tooltip { position: fixed; bottom: 5px; left: 5px;  display: none; z-index: 100;} 
 		
@@ -133,6 +133,8 @@
 		.wiki_suggestions li {     display: inline;list-style: none outside none; padding-right: 5px;} 
 		.wiki_suggestions li a { color: #555555 ;}
 		.wiki_suggestions li .rel { width: 100px;  overflow: hidden; display: inline-block; font-size: 10px;} 
+		
+		.suggestions { line-height: 11px;}
 		
 		.write_container textarea {
  		   resize: none;
@@ -153,5 +155,7 @@
 	
 	.save { display: inline-block; width: 16px; height: 16px; margin: 2px 5px; background: url('../images/email-icon.png') 0 0 no-repeat;}
 	.save {width: 16px; height: 16px; position: relative;}
-	.save .save-options {display: none;   left: 15px; position: absolute; top: -14px; font-size: 12px; padding: 0 5px; margin: 0;}
+	.save .save-options {display: none;   left: -5px; position: absolute; top: -29px; font-size: 12px; padding: 0 5px; margin: 0;}
 	.save:hover .save-options {display: block;}
+	
+	#twitter_result { display: inline-block; width: 300px; padding-left: 20px; color: #555;}

@@ -46,6 +46,9 @@
 	
 	var searchCount = 0;
 	
+	var MAX_RESULTS_PER_BOX = 15;
+	var MAX_SEARCH_RESULTS = 75;
+	
 	
 	var BY_TERM_JSON = '/proxy.php?proxy_url='+'http://wikipedia-miner.cms.waikato.ac.nz/services/exploreArticle?outLinks=true%26parentCategories=true%26linkRelatedness=true%26responseFormat=json%26title=';
 
@@ -256,15 +259,14 @@
 	
 	function searchByTerm(term) {
 	
-		$.getJSON("search_all.php?keyword="+term+"", searchCallback());
+		$.getJSON("search_all.php?keyword="+term+"", searchCallback(term));
 		//$(searchBox.offsetParent).find('.change_to_note').css('display','none');
-
 		$.getJSON("http://search.twitter.com/search.json?rpp=5&include_entities=true&result_type=mixed&q="+term+"&callback=?", searchTwitterCallback());
-		
+		/*
 		setTimeout(function() {
 			searchWikiminer(term);
 		},2000);
-		
+		*/
 		setTimeout(function() {
 			thesaurusSyns(term);
 		},2000);	
@@ -274,63 +276,110 @@
 	
 	function searchTwitterCallback() {
 		return function(data) {
-			if(data.results.lenght>0) {
+			if(data.results.length>0) {
 				console.log(data.results[0].text);
+				$('.window_frame #twitter_result').text(data.results[0].text);
 			}
 		};	
 	}
 	
 	
-	function searchCallback() {
+	function searchCallback(term) {
 		return function(data) {
      		////console.log('searchBox:');
 			////console.log(searchBox);
+			console.log('term '+term);
 			var results = '';
 			if(data.length==0)
 				results = 'No results';
 			var author='';
 			//var authors;
 			var window;
-			var authorCount = -1;
+			var authorCount = 0;
 			var resultPerAuthorCount = 0;
+			
+			var resultsPerBox = 0;
+			console.log(data.length);
+			var ignoredResults =0;
+			var acceptedResults =0;
+			var boxCount = 0;
+
+			var ratio = data.length>MAX_SEARCH_RESULTS ? MAX_SEARCH_RESULTS/data.length : 1;
+			console.log('ratio '+ratio);
+			console.log('length '+data.length);
+			
 			$.each(data, function(i,item){
 				var result = '';
-				if(author!=item.author && authorCount!=-1 && resultPerAuthorCount>15) {
-					results = '<div class="window_container"><div class="result_container"><ul class="results_box">'+results+'</ul></div></div>';
-					
-					var height =   WINDOW_HEIGHT+Math.random()*40 ;
-					//var randomX = Math.random()*WINDOW_WIDTH/6-WINDOW_WIDTH/10+50;
-					//window = openWindow(authorCount*(WINDOW_WIDTH)+randomX,55+Math.random()*60-30,2000, WINDOW_WIDTH, height , results ,  '');
-					
-					var windowX = authorCount*(WINDOW_WIDTH)*1.05+(searchCount%2)*WINDOW_WIDTH/2+Math.random()*50-20;
-					
-					var windowY = 55+Math.random()*30-15+searchCount*100;
-					window = openWindow(windowX, windowY ,2000, WINDOW_WIDTH, height , results ,  '', 'search_container');
-					
-					var results_height = Math.min($(window)[0].getResultContainer().height(),WINDOW_HEIGHT);
-					//$(window)[0].window.resize(WINDOW_WIDTH,Math.min(results_height+40,1200));
-					results='';
+				
+				
+
+				if(author==item.author) {
+					authorCount++;
+					resultPerAuthorCount++;
+				}
+				else {
 					resultPerAuthorCount = 0;
 					author = item.author;
-					
-					authorCount++;
-					//var thisWindow =  $(searchBox).parents('.window_container');
-
-					//$(thisWindow).find('.results_box').html(results);
 				
 				}
-				if(authorCount==-1) {
-					authorCount = 0;
-				}
-				result=result+'<li><a href="#" onclick="list_titles(this,\''+item.author+'\');return false;">'+item.author+'</a>'
-								 +'<a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+');return false;">'+item.title+"</a>";
-//				result=result+'<input type="hidden" id="search_result_hidden" value="'+item.id+'"/>';
+				result=result+'<li><a href="#" onclick="list_titles(this,\''+item.author+'\');return false;">'+item.author+'</a>, '
+								 +'<a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+',\''+term+'\');return false;">'+item.title+"</a>";
 				result=result+'<input type="hidden" id="search_result_hidden_index" value="'+item.wordIndex+'"/>';
 				result=result+'<p>'+item.sentence+'</p></li>';
 				
-				resultPerAuthorCount++;
+				if(ratio<1) {
+					if(Math.random()<ratio) {
+					
+						results=results+result;
+						acceptedResults++;
+						resultsPerBox++;
+						//console.log('adding result'+ item.author+' '+item.title);
+					}
+					else {
+						ignoredResults++;
+					//	console.log('#### ignored result'+ item.author+' '+item.title);
+						}
 				
-				results=results+result;
+				}
+				else {
+					results=results+result;
+					resultsPerBox++;
+				}
+				
+				if(resultsPerBox>MAX_RESULTS_PER_BOX || ignoredResults+acceptedResults==data.length) {
+				 	console.log(resultsPerBox+' max: ' +MAX_RESULTS_PER_BOX);
+					results = '<div class="window_container"><div class="result_container"><ul class="results_box">'+results+'</ul></div></div>';
+					
+					var height =   WINDOW_HEIGHT+Math.random()*40 ;
+					
+					var windowX = boxCount*(WINDOW_WIDTH)*.91+(searchCount%2)*WINDOW_WIDTH/2+10;//+Math.random()*40;
+					console.log('windowX '+windowX);
+					
+					var windowY = 55+Math.random()*30-15+searchCount*100;
+					
+					if(windowX+WINDOW_WIDTH+20>$(document).width()) {
+						
+						windowY+= 120;
+						windowX=windowX%$(document).width();
+						
+					}
+						
+					window = openWindow(windowX, windowY ,2000, WINDOW_WIDTH, height , results ,  '', 'search_container');
+					
+					
+					results='';
+					
+					boxCount++;
+					
+					/*
+					if(authorCount==-1) {
+						authorCount = 0;
+					}
+					*/
+					resultsPerBox=0;
+					
+				
+				}
           
         });
         //	var thisWindow =  $(searchBox).parents('.window_container');
@@ -338,6 +387,8 @@
 		//	$(thisWindow).find('.results_box').html(results);
 		if(authorCount>-1)
 			searchCount++;
+		console.log('ignored '+ignoredResults);
+		console.log('accepted '+acceptedResults);
 		
 		$('.search_box')[0].value='';
 		
@@ -348,7 +399,7 @@
 	}
 
 
-	function search_result(result,article_id,wordIndex)
+	function search_result(result,article_id,wordIndex,term)
 	{
 		//alert(result.nextElementSibling.value);
 
@@ -359,14 +410,14 @@
 		console.log('wi '+wordIndex);
 		
 		var target = result.parentNode.parentNode;//.parentNode;
-		$.getJSON("search.php?id="+article_id+"&wordIndex="+wordIndex, searchResultCallback($(target)));
+		$.getJSON("search.php?id="+article_id+"&wordIndex="+wordIndex, searchResultCallback($(target),term));
 
 		//result.parentNode.parentNode.parentNode.innerHTML = $('#desc_window .window_container').html();
 		return false;
 	}
 
 	
-	function searchResultCallback(target) {
+	function searchResultCallback(target,term) {
 		return function(data) {
 		////console.log('callback');
 			console.log('target');
@@ -381,16 +432,25 @@
 		////console.log(target);
 		
 		var container = $(target).parent().parent().parent().parent();
-		if(container.parent().parent()) { // it is a result from a list not search
+		if(!container.parent().parent()) { // it is a result from a list not search
 			console.log('list it is ');
 			var container = $(target).parent().parent();
 		}
 		console.log('container');
 		console.log(container);
-		var top= $(container).position().top;
+		var top= $(container).position().top+Math.random()*20;
 		var left = $(container).position().left;
+
 		console.log('container top '+top+' left '+left);
-		var grid =openWindow(left+WINDOW_WIDTH+20,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
+		left=left+WINDOW_WIDTH+20+Math.random()*20;
+		if(top<5) {
+			top=5;
+		}
+		if(left+WINDOW_WIDTH>$(document).width()) {
+			left=left-2*WINDOW_WIDTH;
+		}
+		console.log('container corrected top '+top+' left '+left);
+		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
 		
 		var window = grid.window;
 		 
@@ -401,9 +461,10 @@
 			 window.resize(WINDOW_WIDTH,height*1.1+20);
 			 $(window.getContainer()).find('.window_frame').height(height+10);
 	
-			$(window.getContainer()).find('.text_section').highlight('search');
 		}
+		console.log(' highlight term '+term);
 
+		$(window.getContainer()).find('.text_section').highlight(term);
 		
 		
 		
@@ -462,22 +523,27 @@
 		//grid.changeMode('search_result');
 		
 		var target = result.parentNode.parentNode;//.parentNode;
-		$.getJSON("list.php", listTitlesCallback($(target)));
+		$.getJSON("list.php", listTitlesCallback($(target),author));
 
 		//result.parentNode.parentNode.parentNode.innerHTML = $('#desc_window .window_container').html();
 		return false;
 	}
 
 	
-	function listTitlesCallback(target) {
+	function listTitlesCallback(target,author) {
 		return function(data) {
 
 			var result = '<ul class="title_list">';
 			console.log('target');
 			console.log(target);
+			var prevAuthor = '';
 			$.each(data, function(index, value) { 
-				
-				result += '<li><a href="#" onclick="search_result(this,'+value.id+');return false">'+value.author+' '+value.title+'</a></li>';
+				var anchor = '';
+				if(value.author!=prevAuthor) {
+					prevAuthor = value.author;
+					anchor = '<a name="'+value.author+'"/>';
+				}
+				result += '<li>'+anchor+'<a href="#" onclick="search_result(this,'+value.id+');return false">'+value.author+' '+value.title+'</a></li>';
 			
 			});
 			result +='</ul>';
@@ -486,11 +552,28 @@
 		var container = $(target).parent().parent().parent().parent();
 		//console.log('container');
 		//console.log(container);
-		var top= $(container).position().top;
+		/*var top= $(container).position().top;
 		var left = $(container).position().left;
 		console.log('top '+top+' left '+left);
 		var grid =openWindow(left+WINDOW_WIDTH+20,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
+		*/
 		
+		var top= $(container).position().top+Math.random()*20;
+		var left = $(container).position().left;
+
+		console.log('container top '+top+' left '+left);
+		left=left+WINDOW_WIDTH+20+Math.random()*20;
+		if(top<5) {
+			top=5;
+		}
+		if(left+WINDOW_WIDTH>$(document).width()) {
+			left=left-2*WINDOW_WIDTH;
+		}
+		console.log('container corrected top '+top+' left '+left);
+		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
+		
+		
+		scrollToAnchor(author, $(grid.window.getContainer()).find('.window_frame'),grid.window.getContainer().attr('id'));
 		//var window = grid.window;
 		 
 		/* var height =$(window.getContainer()).find('.text_section').height();
@@ -518,6 +601,21 @@
 */
 
 		};
+	}
+	
+	function scrollToAnchor(aid, scroll_container,container_id){
+    	console.log(container_id);
+    	var path ="#"+container_id+" a[name='"+ aid +"']";
+    	console.log(path);
+    	var aTag = $(path);
+    	console.log('aTag');
+    	console.log(aTag);
+    	console.log(container);
+    	console.log('top '+ aTag.offset().top);
+    	console.log('scroll'+ scroll_container.scrollTop());
+	    scroll_container.animate({scrollTop: aTag.offset().top-80},'fast');
+	   //container.scrollTop=aTag.offset().top;
+    	console.log('scroll 2'+ scroll_container.scrollTop());
 	}
 
 	
@@ -649,8 +747,8 @@
 	
 	function checkRegexp( o, regexp, n ) {
             if ( !( regexp.test( o.val() ) ) ) {
-                o.addClass( "ui-state-error" );
-                updateTips( n );
+             //   o.addClass( "ui-state-error" );
+              //  updateTips( n );
                 return false;
             } else {
                 return true;
@@ -691,6 +789,8 @@
 					<li><a href="#" onclick="save_to_desktop();return false;">desktop</a></li>
 					<li><a href="#" onclick="send_email();return false;">email</a></li>
 			</ul>
+			</span>
+			<div id="twitter_result"></div>
 			
 		</div>
 	</div>
