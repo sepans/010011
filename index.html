@@ -61,11 +61,14 @@
 	
 	var windowIndex = 0;
 	
-	var endpointOptions = { endpoint:"Dot",
-			paintStyle:{ radius:3,  fillStyle:'#00F' },
+	var blueTexts = {};
+	
+	var endpointOptions = { endpoint:"Rectangle",
+			paintStyle:{ width:25,height: 20,  fillStyle:'#555' },
 			isSource:true,
 			connectorStyle : { strokeStyle:"#00F" },
-			isTarget:true
+			isTarget:true, 
+			anchor: "TopCenter"
 			};
 	
 		$(document).ready( function() {
@@ -123,8 +126,53 @@
   			});
   			
   			jsPlumb.bind("jsPlumbConnection", function(info) {
-				console.log(info);
-				//info.source.css('display', 'none');
+  				var sourceTxt = info.source.parent().text();
+  				var targetTxt = info.target.parent().text();
+  				console.log(info.target);
+  				var div = '<div class="blue_overlay">'+sourceTxt+' '+targetTxt+'</div>';
+  				/*
+  				info.target.parent().parent().append(div);
+  				
+  				*/
+  				var sourceWindow = info.source.parent().parent().parent().parent();
+  				var targetWindow = info.target.parent().parent().parent().parent();
+ 
+				console.log('source x '+ info.source.position().left);
+				console.log('source x '+info.target.position().left);
+				
+ 				var x = (info.source.position().left+info.target.position().left+
+ 						sourceWindow.position().left+targetWindow.position().left)/2 -WINDOW_WIDTH/2;
+
+ 				var y = (info.source.position().top+info.target.position().top+
+ 				 		sourceWindow.position().top+targetWindow.position().top)/2 -50;
+ 				 		
+				$.ajax({
+					url: "markov.php?order=6&content="+sourceTxt+' '+targetTxt,
+					context: document.body
+					}).done(function(data) { 
+		
+					  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT , data ,  '','blue_text');					
+					  blueTexts[info.source]=blueGrid;
+				});
+				
+  				
+				info.source.css('color', '#00F');
+				info.target.css('color', '#00F');
+			});
+
+  			jsPlumb.bind("jsPlumbConnectionDetached", function(info) {
+				info.source.css('color', '#666');
+				info.target.css('color', '#666');
+				//console.log(info.target.parent().parent().find('.blue_overlay'));
+				//info.target.parent().parent().find('.blue_overlay').css('opacity',0);
+				
+				var grid = blueTexts[info.source];
+				console.log(grid);
+				console.log(grid.window);
+				grid.window.close();
+				
+				
+				
 			});
 
   			
@@ -141,6 +189,19 @@
 	
 	
 	}); 
+	
+	
+	function markovCallback(x,y) {
+			return function(data) {
+				
+				console.log(data);
+		
+			  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT , data ,  '','blue_text');
+  				
+  			  blueTexts[info.source]=blueGrid;
+			};
+
+	}
 
 	
 	function addSelectionToBox() {
@@ -171,7 +232,7 @@
 		//var top = $('body').scrollTop()+50;
 		//var left = $('body').scrollLeft()+50;
 		
-		var top= $(window).height()-WRITE_WINDOW_HEIGHT;
+		var top= $(window).height()-WRITE_WINDOW_HEIGHT-5;
 		var left= $(window).width()/2-WRITE_WINDOW_WIDTH/2;
 		//alert('write top '+top+' left '+left+ ' window height '+$(window).height()+ ' document height '+$(document).height());
 		
@@ -215,48 +276,6 @@
 	
 	}
 	
-	/*
-		function openSuggestionBox(content) {
-	
-		
-		var top = $(window).height()-WINDOW_HEIGHT-10;
-		var left = 0;//$(window).width()-WINDOW_WIDTH-10;
-		console.log('top '+top+' left '+left);
-		
-
-		if(suggestionBox==null) {
-			//var content=$("#write_window").html();
-			suggestionBox = $.window({
-				title: " ",
-				content: content,
-				resizable: true,
-				width: WINDOW_WIDTH+40,
-				height: WINDOW_HEIGHT,
-				x:  left,
-				y: top
-			});
-			suggestionBox.getHeader().find('.minimizeImg').css('display','block');
-			suggestionBox.getHeader().find('.closeImg').css('display','none');
-			suggestionBox.getContainer().css('z-index',2050); 
-			//suggestionBox.alignHorizontalCenter();
-		}
-		else {
-			//suggestionBox.move(left,top,false);
-			if(suggestionBox.isMinimized()) {
-				suggestionBox.restore();
-			}
-			suggestionBox.setContent(content);
-			suggestionBox.getContainer().css('z-index',2050); 
-		}
-		return false;
-
-	
-	}
-	*/
-	
-	
-	
-
 	
 	function getGridForElement(element) {
 	
@@ -302,12 +321,12 @@
 	
 		$.getJSON("search_all.php?keyword="+term+"", searchCallback(term));
 		//$(searchBox.offsetParent).find('.change_to_note').css('display','none');
-		$.getJSON("http://search.twitter.com/search.json?rpp=5&include_entities=true&result_type=mixed&q="+term+"&callback=?", searchTwitterCallback());
-		/*
+		$.getJSON("http://search.twitter.com/search.json?rpp=5&include_entities=true&result_type=mixed&lang=en&q="+term+"&callback=?", searchTwitterCallback());
+		
 		setTimeout(function() {
 			searchWikiminer(term);
 		},2000);
-		*/
+		
 		setTimeout(function() {
 			thesaurusSyns(term);
 		},2000);	
@@ -318,7 +337,6 @@
 	function searchTwitterCallback() {
 		return function(data) {
 			if(data.results.length>0) {
-				console.log(data.results[0].text);
 				$('.window_frame #twitter_result').text(data.results[0].text);
 			}
 		};	
@@ -346,9 +364,6 @@
 			var boxCount = 0;
 
 			var ratio = data.length>MAX_SEARCH_RESULTS ? MAX_SEARCH_RESULTS/data.length : 1;
-			console.log('ratio '+ratio);
-			console.log('length '+data.length);
-			console.log(data);
 			
 			$.each(data, function(i,item){
 				var result = '';
@@ -521,7 +536,7 @@
 		}
 		console.log(' highlight term '+term);
 
-		$(window.getContainer()).find('.text_section').highlight(term);
+		$(window.getContainer()).find('.text_section p').highlight(' '+term);
 		
 		 jsPlumb.addEndpoint($("#"+window.getContainer().attr('id')+" .highlight"), endpointOptions);
 		 
@@ -688,11 +703,7 @@
 		$.getJSON(THES_JSON+term+'/json', function(data) {
 				var suggestions_html ='';
 				var index = 0;
-				//console.log(data);
 				for (var key in data) {
-					//console.log(key);
-					//console.log(data[key]);
-					//console.log(data[key].syn);
 					if(key==undefined)
 						continue; 
 					$.each(data[key].syn, function(index,item) {

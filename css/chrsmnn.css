@@ -34,7 +34,7 @@
 
 		.utilButton {position: fixed; top: 5px;}
 		
-		.write_note_box { /*border: 1px;*/ width: 370px; height: 140px; margin: 0px 0 0 0;}
+		.write_note_box { /*border: 1px;*/ width: 370px; height: 130px; margin: 0px 0 0 0;}
 		
 		.window_panel { border: 0px solid #E5E5E5; font-size: 12px; font-weight: normal;}
 		.window_panel .window_header { border-top: 1px  solid #CCC !important; border-left: 1px  solid #CCC !important;
@@ -68,6 +68,8 @@
 		.window_panel .window_frame .text_section { padding: 0px 17px 0 3px }		
 		.window_panel .window_frame:hover .text_section { padding: 0 0px 0 3px }*/		/* for text*/
 		
+	/*	.write_container .wiki_suggestions { padding: 0 16px 0 3px }		
+		.write_container:hover .wiki_suggestions { padding: 0 0px 0 3px }	*/	/* for write suggestions */
 		
 		
 	/*	.window_panel .window_frame  {overflow: -moz-hidden-unscrollable !important; }
@@ -120,7 +122,7 @@
 		.result_container a {text-decoration: underline;}
 		.result_container .results_box a {text-decoration: none;}
 		
-		.highlight { /*color: #888; background-color: #F8F8F8;*/ color: #0000FF; }
+		.highlight { color: #666; background-color: #F8F8F8; }
 		
 		#tooltip { position: fixed; bottom: 5px; left: 5px;  display: none; z-index: 100;} 
 		
@@ -160,12 +162,16 @@
 	
 	.window_panel .window_header .window_function_bar { top: 0;}
 	
-	.save { display: inline-block; width: 16px; height: 16px; margin: 2px 5px;  }
+	.save { display: block; width: 16px; height: 16px; margin: 2px 5px;  }
 	.write_container:hover .save { background: url('../images/email-icon.png') 0 0 no-repeat; opacity: 0.6; }
 	.save {width: 16px; height: 16px; position: relative;}
 	.save .save-options {display: none;   left: -5px; position: absolute; top: -42px; font-size: 12px; padding: 0 5px; margin: 0;}
 	.save:hover .save-options {display: block;}
 	
-	#twitter_result { display: inline-block; width: 300px; padding-left: 20px; color: #555;}
+	#twitter_result { display: inline-block; width: 380px; padding-left: 2px; color: #555;}
 	
-	._jsPlumb_endpoint { z-index: 4000;}
+	._jsPlumb_endpoint { z-index: 4000; cursor: move; opacity: 0;}
+	._jsPlumb_endpoint:hover {  opacity: 0.1;}
+	
+	.blue_overlay { color: #00F; position: absolute; background: none; opacity: 0.8; top: 30px;}
+	.blue_text {color: #00F; font-size: 11px;}
