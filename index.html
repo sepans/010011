@@ -128,7 +128,6 @@
   			jsPlumb.bind("jsPlumbConnection", function(info) {
   				var sourceTxt = info.source.parent().text();
   				var targetTxt = info.target.parent().text();
-  				console.log(info.target);
   				var div = '<div class="blue_overlay">'+sourceTxt+' '+targetTxt+'</div>';
   				/*
   				info.target.parent().parent().append(div);
@@ -137,8 +136,6 @@
   				var sourceWindow = info.source.parent().parent().parent().parent();
   				var targetWindow = info.target.parent().parent().parent().parent();
  
-				console.log('source x '+ info.source.position().left);
-				console.log('source x '+info.target.position().left);
 				
  				var x = (info.source.position().left+info.target.position().left+
  						sourceWindow.position().left+targetWindow.position().left)/2 -WINDOW_WIDTH/2;
@@ -146,12 +143,19 @@
  				var y = (info.source.position().top+info.target.position().top+
  				 		sourceWindow.position().top+targetWindow.position().top)/2 -50;
  				 		
+ 				var length = Math.round((sourceTxt.length + targetTxt.length) /2);
+ 				console.log('length '+length);
+ 				 		
 				$.ajax({
-					url: "markov.php?order=6&content="+sourceTxt+' '+targetTxt,
+					url: 'markov.php?order=6&begining='+info.source.text()+'&length='+length+'&content='+sourceTxt+' '+targetTxt,
 					context: document.body
 					}).done(function(data) { 
+					  var textCont = "<div class='blue_text_cont'>"+data+"...</div>"; 
 		
-					  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT , data ,  '','blue_text');					
+					  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont ,  '','blue_text');	
+					  var height = blueGrid.window.getContainer().find('.blue_text_cont').height();
+					  console.log('win h '+height);
+					  blueGrid.window.resize(WINDOW_WIDTH,height+30);				
 					  blueTexts[info.source]=blueGrid;
 				});
 				
@@ -422,8 +426,16 @@
 						
 					}
 						
-					window = openWindow(windowX, windowY ,2000, WINDOW_WIDTH, height , results ,  '', 'search_container');
+					var grid = openWindow(windowX, windowY ,2000, WINDOW_WIDTH, height , results ,  '', 'search_container');
+					var window=grid.window;
 					
+					$(window.getContainer()).find('.results_box p').highlight(term,{wordsOnly: true});
+		
+		 			/*jsPlumb.addEndpoint($("#"+window.getContainer().attr('id')+" .highlight"), endpointOptions);
+		 
+					 jsPlumb.draggable(window.getContainer());
+
+					*/
 					
 					results='';
 					
@@ -485,7 +497,7 @@
 			var result = '';
 			var body = dataItem.body;
 			body.replace(/â€™/g,'\'')
-			result = '<div class="text_section"><h2>'+dataItem.title+'</h2><p>'+body+'</p></div>';
+			result = '<input class="local_search" onkeyup="if (event.keyCode == 13) {localSearch(this);}"/><div class="text_section"><h2>'+dataItem.title+'</h2><p>'+body+'</p></div>';
 			
 		////console.log(result);
 		////console.log(target);
@@ -519,7 +531,7 @@
 
 		$(window.getContainer()).find('.text_section').css('line-height', lineHeight);
 		 
-		 var height =$(window.getContainer()).find('.text_section').height();
+		 var height =$(window.getContainer()).find('.text_section').height()+30; // 30 for input box
 		 console.log(height);
 		// console.log(window.width);
 		 if(height<1000) {
@@ -536,7 +548,7 @@
 		}
 		console.log(' highlight term '+term);
 
-		$(window.getContainer()).find('.text_section p').highlight(' '+term);
+		$(window.getContainer()).find('.text_section p').highlight(term, {wordsOnly: true});
 		
 		 jsPlumb.addEndpoint($("#"+window.getContainer().attr('id')+" .highlight"), endpointOptions);
 		 
@@ -559,6 +571,17 @@
 */
 
 		};
+	}
+	
+	function localSearch(inputBox) {
+		var term = inputBox.value;
+		console.log($(inputBox).parent());
+		$(inputBox).parent().find('.text_section p').highlight(term);
+		
+		jsPlumb.addEndpoint($(inputBox).parent().find('.text_section p .highlight'), endpointOptions);
+		 
+		 jsPlumb.draggable(window.getContainer());
+
 	}
 
 	function searchResultNewBox(chck,position) {
@@ -819,6 +842,21 @@
 	
 	}
 	
+	function contact_email() {
+		var content = $('.window_frame #write_textarea').val();
+		var to = 'chrsmnn@gmail.com';
+		if(to!=null && to!='') {
+		  $.ajax({
+  			url: "save.php?method=email&content="+content+"&to="+to,
+			context: document.body
+			}).done(function() { 
+			  console.log('ajax done');
+		  });
+		}
+		
+	
+	}
+	
 	function checkRegexp( o, regexp, n ) {
             if ( !( regexp.test( o.val() ) ) ) {
              //   o.addClass( "ui-state-error" );
@@ -862,7 +900,7 @@
 			<ul class="save-options">
 					<li><a href="#" onclick="save_to_desktop();return false;">desk</a></li>
 					<li><a href="#" onclick="send_email();return false;">email</a></li>
-					<li><a href="#" onclick="send_email();return false;">contact</a></li>
+					<li><a href="#" onclick="contact_email();return false;">contact</a></li>
 			</ul>
 			</span>
 			<div id="twitter_result"></div>

@@ -51,9 +51,22 @@ function generate_markov_table($text, $look_forward) {
     return $table;
 }
 
-function generate_markov_text($length, $table, $look_forward) {
+function generate_markov_text($length, $table, $look_forward, $start) {
     // get first character
-    $char = array_rand($table);
+	$ppi = 0;
+	if($start) {
+		
+		$char = substr($start, 0, $look_forward);
+		/*if(startsWith($start,'Did I') || startsWith($start,'Don\'t')) {
+			$char = substr($start, 0, 2*$look_forward);
+		}*/
+		//echo $char;
+	}
+	else {
+		$char = array_rand($table);
+		$ppi =1;
+	}
+
     $o = $char;
 
     for ($i = 0; $i < ($length / $look_forward); $i++) {

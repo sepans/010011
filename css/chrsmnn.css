@@ -49,6 +49,8 @@
 		.ui-resizable-se { bottom: 10px; }
 		.ui-icon-gripsmall-diagonal-se {background: #FFF url('../images/resize_corner.png') -5px -5px no-repeat; padding-top: 14px;}
 		
+		.blue_text .ui-icon-gripsmall-diagonal-se {padding-top: 5px;}
+		
 		.ui-widget-header { background-image: none;}
 	
 		.window_panel .window_header .window_title_text { }
@@ -97,7 +99,11 @@
 		.defulat-link-color a {color: #00FFFF; }
 		.defulat-link-color a:visited {color: #800080 ;}
 		.footnote { font-size: 10px; border-top: 1px solid black;}
-		.search_box {border: 1px solid black; width: 230px; margin: 0 auto; font-size: 11px;}
+		.search_box { width: 230px; margin: 0 auto;}
+		
+		input {border: 1px solid black;  font-size: 11px;}
+		
+		.local_search {border: 1px solid #888; display: block; margin-bottom: 3px; margin-top: 1px;}
 		
 		/*.window_function_bar {display: none;}*/
 		.window_panel .window_header .minimizeImg {display: none;}  /* for now. it is buggy*/
@@ -122,7 +128,9 @@
 		.result_container a {text-decoration: underline;}
 		.result_container .results_box a {text-decoration: none;}
 		
-		.highlight { color: #666; background-color: #F8F8F8; }
+		.highlight { color: #777; background-color: #F8F8F8; }
+		
+		.results_box .highlight {background-color: #FFF; color: #777;}
 		
 		#tooltip { position: fixed; bottom: 5px; left: 5px;  display: none; z-index: 100;} 
 		
