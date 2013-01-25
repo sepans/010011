@@ -1,5 +1,5 @@
 		body { /*background-color: #FFF;*/ padding: 0; margin: 0; color: #000; 
-			font-family:Lucida Console, Monaco, sans-serif; font-size: 12px; width: 1000px; overflow: hidden;}
+			font-family:Lucida Console, Monaco, sans-serif; font-size: 11px; width: 1000px; overflow: hidden;}
 		li {list-style: none;}
 /*	
        div {
@@ -36,7 +36,7 @@
 		
 		.write_note_box { /*border: 1px;*/ width: 370px; height: 130px; margin: 0px 0 0 0;}
 		
-		.window_panel { border: 0px solid #E5E5E5; font-size: 12px; font-weight: normal;}
+		.window_panel { border: 0px solid #E5E5E5; font-size: 11px; font-weight: normal;}
 		.window_panel .window_header { border-top: 1px  solid #CCC !important; border-left: 1px  solid #CCC !important;
 						border-right: 0px  !important; border-bottom: 0px  !important;
 						/*border: 1px  solid #888 !important;*/
@@ -130,7 +130,7 @@
 		
 		.highlight { color: #777; background-color: #F8F8F8; }
 		
-		.results_box .highlight {background-color: #FFF; color: #777;}
+		.results_box .highlight {background-color: #FFF; color: #555;}
 		
 		#tooltip { position: fixed; bottom: 5px; left: 5px;  display: none; z-index: 100;} 
 		
@@ -161,7 +161,7 @@
 		}
 		
 		.text_section { font-size: 11px; }
-		.text_section h2 { padding: 0; }
+		.text_section h2 { padding: 0;  font-size: 11px;}
 
 		
 		.title_list { padding: 0 0 0 2px; margin: 0; font-size: 11px;}
@@ -183,3 +183,17 @@
 	
 	.blue_overlay { color: #00F; position: absolute; background: none; opacity: 0.8; top: 30px;}
 	.blue_text {color: #00F; font-size: 11px;}
+
+	.red_text {color: #F00; }
+	.red_text .highlight {color: #A00;}
+
+	.blue_text .highlight {color: #00A;}
+
+	.green_text {color: #147C04; }
+	.green_text .highlight {color: #0A0;}
+
+	.ui-slider-horizontal .ui-slider-handle {/*background-color: #000;*/cursor: move; border-right: 1px solid #000; width: 3px; height: 10px; top: 2px; margin-left: 0;}
+	.ui-slider-horizontal {border-bottom: 1px solid #BBB;}
+	.wikify_slider { width: 100px; margin: -2px 0 4px 20px; }
+	
+	.wm_wikifiedLink { color: #888; background-color: #E8E8E8; opacity: 0.9;}

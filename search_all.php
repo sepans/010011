@@ -7,6 +7,19 @@
     MySQL_connect("localhost", "root", "letmein");
     $link = MySQL_select_db("jm");
 	$word = $_GET['keyword'];
+	$author = $_GET['author'];
+	
+	$authorClause = "";
+	
+	//echo $author;
+	
+	
+	if($author!=null && strlen($author)>0) {
+		$authorClause = " and author='$author' ";
+	}
+		
+
+
 	if($word == null)
 		$word = 'being';
 	$id = $_GET['id'];
@@ -21,7 +34,8 @@
 				'$word'
 				) AS score
 				FROM articles
-				where  INSTR(body, '$word')> 0 order by author";
+				where  INSTR(body, '$word')> 0 ".$authorClause." order by author";
+	//echo $search_query;
 	$body_query = "SELECT id, title , body from articles where id = $id";
 	if($word !=null)	
 		$query = $search_query;
