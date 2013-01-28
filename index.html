@@ -631,17 +631,23 @@
 	  	
 	  	var window = target.parents('.window_panel');
 	  	
-	  	var initialSearchTerm =  target.parents('.window_frame').find('.highlight').text();
+	  	var highlights = target.parents('.window_frame').find('.highlight');
 	  	
+	  	//console.log(highlights);
+	  	//console.log($(highlights[0]));
+	  	var initialSearchTerm =  highlights.length>0 ? $(highlights[0]).text() : undefined;
+	  	    
+	  	//console.log(initialSearchTerm);
 
 	  	target.html(data);
 	  	
 	  	// for initial term
-	  	window.find('.window_frame p').highlight(initialSearchTerm);
-	  	jsPlumb.addEndpoint($("#"+window.attr('id')+" .highlight"), endpointOptions);
-	  	
+	  	if(initialSearchTerm) {
+    	  	window.find('.window_frame p').highlight(initialSearchTerm);
+	      	jsPlumb.addEndpoint($("#"+window.attr('id')+" .highlight"), endpointOptions);
+	  	}
     		 
-
+        console.log($("#"+window.attr('id')+" .wm_wikifiedLink"))
 	  	//for wikified terms
 	  	jsPlumb.addEndpoint($("#"+window.attr('id')+" .wm_wikifiedLink"), redEndpointOptions);
 		 
@@ -649,7 +655,7 @@
 		 
 
          if(linksMade<3) {
-             $("#"+window.attr('id')+" .highlight").attr('title','drag to any other anchor word to synthesize');
+             $("#"+window.attr('id')+" .wm_wikifiedLink").attr('title','drag to any other anchor word to synthesize');
              $('._jsPlumb_endpoint').attr('title','drag to any other anchor word to synthesize');
          }
          else if (linksMade>=3) {
