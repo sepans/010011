@@ -60,6 +60,7 @@
 	var MAX_RESULTS_PER_BOX = 15;
 	var MAX_SEARCH_RESULTS = 75;
 	
+	var linksMade = 0;
 	
 	var BY_TERM_JSON = '/proxy.php?proxy_url='+'http://wikipedia-miner.cms.waikato.ac.nz/services/exploreArticle?outLinks=true%26parentCategories=true%26linkRelatedness=true%26responseFormat=json%26title=';
 
@@ -116,7 +117,6 @@
   			jsPlumb.bind("jsPlumbConnection", function(info) {
   				var sourceTxt = info.source.parent().text();
   				var targetTxt = info.target.parent().text();
-  				console.log(info);
 				var sourceWindow = info.source.parents('.window_panel');//parent().parent().parent().parent();
 				var targetWindow = info.target.parents('.window_panel');//parent().parent().parent().parent();
  
@@ -129,7 +129,6 @@
 						
 				if(info.source.hasClass('wm_wikifiedLink')) {	//wikified anchor
 				
-				   console.log('wikified source ');
 				   var sourceWord = info.source.text();
 				   var targetWord = info.target.text();
 				   		$.getJSON("search_all.php?keyword="+sourceWord, function(data1) {
@@ -140,18 +139,9 @@
 								
 								var result2= data2[Math.floor(Math.random()*data2.length)];
 								
-
-								
-								console.log(result1);
-								console.log(result2);
-
 								$.getJSON("search.php?id="+result1.id+"&wordIndex="+result1.wordIndex, function(para1) {
 										console.log(para1);									
 									$.getJSON("search.php?id="+result2.id+"&wordIndex="+result2.wordIndex, function(para2) {
-											console.log(para1);	
-											console.log(para2);	
-											console.log(para1[0].body);	
-											console.log(para2[0].body);	
 
 											var length = Math.round((para1[0].body.length + para2[0].body.length) /2);
 
@@ -206,7 +196,6 @@
 					*/
 							
 					var length = Math.round((sourceTxt.length + targetTxt.length) /2);
-					console.log('length '+length);
 					
 					var order = color=='blue' ? 6 : 4;
 							
@@ -218,7 +207,6 @@
 			
 						  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont , '', color+'_text');	
 						  var height = blueGrid.window.getContainer().find('.'+color+'_text_cont').height();
-						  console.log('win h '+height);
 						  blueGrid.window.resize(WINDOW_WIDTH,height+40);	
 						 // '.window_frame'
 						  $(blueGrid.window.getContainer()).find('.window_frame').height(height+30);
@@ -240,17 +228,14 @@
 					info.source.css('color', '#00F');
 					info.target.css('color', '#00F');
 				}
+				linksMade++;
 			});
 
   			jsPlumb.bind("jsPlumbConnectionDetached", function(info) {
 				info.source.css('color', '#666');
 				info.target.css('color', '#666');
-				//console.log(info.target.parent().parent().find('.blue_overlay'));
-				//info.target.parent().parent().find('.blue_overlay').css('opacity',0);
 				
 				var grid = blueTexts[info.source];
-				console.log(grid);
-				console.log(grid.window);
 				grid.window.close();
 				
 				
@@ -270,9 +255,7 @@
 		var selectedText = getSelectedText();
 		var text = $.trim($('.window_container .write_note_box').val());
 		text= text+" "+selectedText;
-		console.log('val '+text);
 		$('.window_container .write_note_box').val(text);
-		console.log('val '+$('.window_container .write_note_box').val());
 		
 	}
 	
@@ -383,7 +366,7 @@
 		if(term.indexOf(',')>0) {
 			author = term.substring(0,term.indexOf(',')).trim();
 			term = term.substring(term.indexOf(',')+1).trim();
-			console.log('term '+term+' author '+author);
+		//	console.log('term '+term+' author '+author);
 		}
 	
 		$.getJSON("search_all.php?keyword="+term+"&author="+author, searchCallback(term));
@@ -412,9 +395,6 @@
 	
 	function searchCallback(term) {
 		return function(data) {
-     		////console.log('searchBox:');
-			////console.log(searchBox);
-			console.log('term '+term);
 			var results = '';
 			if(data.length==0)
 				results = 'No results';
@@ -425,7 +405,6 @@
 			var resultPerAuthorCount = 0;
 			
 			var resultsPerBox = 0;
-			console.log(data.length);
 			var ignoredResults =0;
 			var acceptedResults =0;
 			var boxCount = 0;
@@ -457,11 +436,9 @@
 						results=results+result;
 						acceptedResults++;
 						resultsPerBox++;
-						//console.log('adding result'+ item.author+' '+item.title);
 					}
 					else {
 						ignoredResults++;
-					//	console.log('#### ignored result'+ item.author+' '+item.title);
 						}
 				
 				}
@@ -472,13 +449,12 @@
 				}
 				
 				if(resultsPerBox>MAX_RESULTS_PER_BOX || ignoredResults+acceptedResults==data.length) {
-				 	console.log(resultsPerBox+' max: ' +MAX_RESULTS_PER_BOX);
+				 	//console.log(resultsPerBox+' max: ' +MAX_RESULTS_PER_BOX);
 					results = '<div class="window_container"><div class="result_container"><ul class="results_box">'+results+'</ul></div></div>';
 					
 					var height =   WINDOW_HEIGHT+Math.random()*40 ;
 					
 					var windowX = boxCount*(WINDOW_WIDTH)*.91+(searchCount%2)*WINDOW_WIDTH/2+10;//+Math.random()*40;
-					console.log('windowX '+windowX);
 					
 					var windowY = 55+Math.random()*30-15+searchCount*100;
 					
@@ -518,11 +494,8 @@
         //	var thisWindow =  $(searchBox).parents('.window_container');
 
 		//	$(thisWindow).find('.results_box').html(results);
-		console.log('data.length '+data.length);
 		if(data.length>0)
 			searchCount++;
-		console.log('ignored '+ignoredResults);
-		console.log('accepted '+acceptedResults);
 		
 		$('.search_box')[0].value='';
 		
@@ -535,13 +508,6 @@
 
 	function search_result(result,article_id,wordIndex,term)
 	{
-		//alert(result.nextElementSibling.value);
-
-		//todo pass word and index to searchResultCallback
-		
-		//var grid = getGridForElement(result);
-		//grid.changeMode('search_result');
-		console.log('wi '+wordIndex);
 		
 		var target = result.parentNode.parentNode;//.parentNode;
 		$.getJSON("search.php?id="+article_id+"&wordIndex="+wordIndex, searchResultCallback($(target),term));
@@ -556,9 +522,6 @@
 	
 	function searchResultCallback(target,term) {
 		return function(data) {
-		////console.log('callback');
-			console.log('target');
-			console.log(target);
 			var dataItem = data[0];
 			var result = '';
 			var body = dataItem.body;
@@ -569,12 +532,7 @@
 			
 		
 		var container = $(target).parents('.window_panel');//parent().parent().parent().parent();
-		/*if(!container.parent().parent()) { // it is a result from a list not search
-			console.log('list it is ');
-			var container = $(target).parent().parent();
-		}*/
-		console.log('container');
-		console.log(container);
+
 		var top= $(container).position().top;
 		var left = $(container).position().left;
 
@@ -590,7 +548,6 @@
 	
 	function createWindow(left,top,result,term) {  // top and left are the original window top left (where link was)
 	
-		console.log('container parent top '+top+' left '+left);
 		left=left+WINDOW_WIDTH+20+Math.random()*20;
 		if(top<5) {
 			top=5;
@@ -598,31 +555,25 @@
 		if(left+WINDOW_WIDTH>$(document).width()) {
 			left=left-2*WINDOW_WIDTH;
 		}
-		console.log('container corrected top '+top+' left '+left);
 	
 		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
 		
 		var window = grid.window;
 		
 		var lineHeight = (12+openedTextCount%3)+'px';
-		console.log('lineHeight '+lineHeight);
 		openedTextCount++;
 
 		$(window.getContainer()).find('.text_section').css('line-height', lineHeight);
 		 
 		 var height =$(window.getContainer()).find('.text_section').height()+30; // 30 for input box
-		 console.log(height);
 
 		 if(height<1000) {
 			 window.resize(WINDOW_WIDTH,height*1.1+20);
 			 $(window.getContainer()).find('.window_frame').height(height+15);
 			
-			 console.log('container ');
-			 console.log($(window.getContainer()).find('.window_frame'));
 			  
 	
 		}
-		console.log(' highlight term '+term);
 
 		$(window.getContainer()).find('.wikify_slider').slider({max: 100, value: 0,
 	  		 stop: function(event, ui) {
@@ -640,9 +591,19 @@
 			
 			 jsPlumb.addEndpoint($("#"+window.getContainer().attr('id')+" .highlight"), endpointOptions);
 			 
+			 if(linksMade<3) {
+    			 $("#"+window.getContainer().attr('id')+" .highlight").attr('title','drag to any other anchor word to link');
+    			 $('._jsPlumb_endpoint').attr('title','drag to any other anchor word to link');
+    		 }
+    		 else if (linksMade>=3) {
+    			 $(".highlight").attr('title','');
+    			 $('._jsPlumb_endpoint').attr('title','');
+    		 
+    		 }
+    		 
+			 
 			 jsPlumb.draggable(window.getContainer());
 			 
-			 console.log(window.getContainer());
 		}
 		
 		
@@ -671,6 +632,7 @@
 	  	var window = target.parents('.window_panel');
 	  	
 	  	var initialSearchTerm =  target.parents('.window_frame').find('.highlight').text();
+	  	
 
 	  	target.html(data);
 	  	
@@ -678,17 +640,39 @@
 	  	window.find('.window_frame p').highlight(initialSearchTerm);
 	  	jsPlumb.addEndpoint($("#"+window.attr('id')+" .highlight"), endpointOptions);
 	  	
+    		 
+
 	  	//for wikified terms
 	  	jsPlumb.addEndpoint($("#"+window.attr('id')+" .wm_wikifiedLink"), redEndpointOptions);
 		 
 		 jsPlumb.draggable(window);
 		 
+
+         if(linksMade<3) {
+             $("#"+window.attr('id')+" .highlight").attr('title','drag to any other anchor word to synthesize');
+             $('._jsPlumb_endpoint').attr('title','drag to any other anchor word to synthesize');
+         }
+         else if (linksMade>=3) {
+             $(".highlight").attr('title','');
+             $('._jsPlumb_endpoint').attr('title','');
+         
+         }
+
 		 target.find('.wm_wikifiedLink').click(function (event) {
 		 	
 		 	var x = $(event.target).parents('.window_panel').position().left;
 		 	var y = $(event.target).parents('.window_panel').position().top;
 		 	var pageId = $(event.target).attr('pageId');
-		 	console.log(x+' y '+y+' p '+pageId);
+
+			queryWikipediaApiById(x,y,pageId);
+		 	
+		 	return false;
+		 });
+		 
+	  }
+	  
+	  function queryWikipediaApiById(x,y,pageId) {
+	  
 		    var wiki_api = '/proxy.php?proxy_url='+'http://en.wikipedia.org/w/api.php?action=query%26prop=revisions%26rvprop=content%26format=json%26pageids='+pageId;
 			//var wiki_api = 'http://en.wikipedia.org/w/index.php?action=render&title='
 			$.ajax({
@@ -698,33 +682,28 @@
 				success: function(data) {
       			 openWikiWindow(data, x,y,pageId);
      			}
-  			});
-			
-		 	
-		 	return false;
-		 });
-		 
-		// console.log(window.getContainer());
+  			});	  
+  			return false;
 	  }
 	  
-	   function openWikiWindow(data, x,y,pageId)
+	  function openWikiWindow(data, x,y,pageId)
 	  {
-			console.log(data.query);
-		 	console.log('x '+x+' y '+y);
 			var rawWiki = data.query.pages[pageId].revisions[0]['*'];
 			var plainWiki =txtwiki.parseWikitext(rawWiki);
 			plainWiki = plainWiki.substring(0,plainWiki.indexOf('=='));
 			
-			console.log(plainWiki);
 			plainWiki=plainWiki.replace(/{{(.*?)}}/g,'');
 //			plainWiki=plainWiki.replace(/{{(.*?)}}/g,'');
 			plainWiki = plainWiki.lastIndexOf('}}')>0 ? plainWiki.substring(plainWiki.lastIndexOf('}}')+2) : plainWiki;
 			plainWiki = plainWiki.lastIndexOf('(disambiguation)')>0 ? plainWiki.substring(plainWiki.lastIndexOf('(disambiguation)')+15) : plainWiki;
 
 //			plainWiki=plainWiki.replace(/|(.*?)|/g,'');
-			console.log(plainWiki);
 			var result = '<div class="wikify_slider"></div><div class="text_section"><h2>'+data.query.pages[pageId].title+'</h2><p>'+plainWiki+'</p></div>';
 			//var grid =openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT , plainWiki ,  '', 'wiki_box');
+			if(x==0 && y==0) {
+			    x=20+Math.random()*200;
+			    y=30+Math.random()*50;
+			}
 			
 			createWindow(x,y,result,'');
 
@@ -734,13 +713,13 @@
 		
 
 		
-	
+	/// no longer used ?!?!?!
 	
 	function localSearch(inputBox) {
 		var term = inputBox.value;
-		console.log($(inputBox).parent());
 		$(inputBox).parent().find('.text_section p').highlight(term);
 		
+
 		jsPlumb.addEndpoint($(inputBox).parent().find('.text_section p .highlight'), endpointOptions);
 		 
 		 jsPlumb.draggable(window.getContainer());
@@ -798,8 +777,6 @@
 		return function(data) {
 
 			var result = '<ul class="title_list">';
-			console.log('target');
-			console.log(target);
 			var prevAuthor = '';
 			$.each(data, function(index, value) { 
 				var anchor = '';
@@ -811,24 +788,13 @@
 			
 			});
 			result +='</ul>';
-		////console.log(target);
-		
-		//var container = $(target).parent().parent().parent().parent();// replaced with following line
 		
 		var container = $(target).parents('.window_panel');
 		
-		//console.log('container');
-		//console.log(container);
-		/*var top= $(container).position().top;
-		var left = $(container).position().left;
-		console.log('top '+top+' left '+left);
-		var grid =openWindow(left+WINDOW_WIDTH+20,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
-		*/
 		
 		var top= $(container).position().top+Math.random()*20;
 		var left = $(container).position().left;
 
-		console.log('container top '+top+' left '+left);
 		left=left+WINDOW_WIDTH+20+Math.random()*20;
 		if(top<5) {
 			top=5;
@@ -836,7 +802,6 @@
 		if(left+WINDOW_WIDTH>$(document).width()) {
 			left=left-2*WINDOW_WIDTH;
 		}
-		console.log('container corrected top '+top+' left '+left);
 		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
 		
 		
@@ -849,18 +814,9 @@
 	}
 	
 	function scrollToAnchor(aid, scroll_container,container_id){
-    	console.log(container_id);
     	var path ="#"+container_id+" a[name='"+ aid +"']";
-    	console.log(path);
     	var aTag = $(path);
-    	console.log('aTag');
-    	console.log(aTag);
-    	console.log(container);
-    	console.log('top '+ aTag.offset().top);
-    	console.log('scroll'+ scroll_container.scrollTop());
 	    scroll_container.animate({scrollTop: aTag.offset().top-80},'fast');
-	   //container.scrollTop=aTag.offset().top;
-    	console.log('scroll 2'+ scroll_container.scrollTop());
 	}
 
 	
@@ -876,21 +832,17 @@
 					$.each(data[key].syn, function(index,item) {
 						if(index<5) {
 							suggestions_html+='<li><a href="#" onclick="searchByTerm(\''+item+'\');return false;"> '+item+'</li>';
-							//console.log(item.title);
 							index++;
 						}
 					});
 
 				}
-	//			console.log(suggestions_html);
 				//openWindow(40, 500,4000,400,250,suggestions_html,'');
                                 if(suggestionList.length>0) {
                                         suggestionList+='<li>&nbsp;</li>';
                                 }
 
 				suggestionList+=suggestions_html;
-				//console.log(suggestionList);
-				//openSuggestionBox('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
 				$('.write_container .suggestions').html('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
 		});
 	}
@@ -903,25 +855,20 @@
 	
 	function processArticleJSON(url,term) {
 	
-				console.log('wiki search');
 				$.getJSON(url, function(data) {
 				json_cache = data;
 				var sortedLinks = sortJSON(data,'relatedness');
-				console.log(data.id);
 				var suggestions_html ='';
 				$.each(sortedLinks, function(index,item) {
 					if(index<7) {
-						suggestions_html+='<li><a href="#" onclick="searchByTerm(\''+item.title.toLowerCase()+'\');return false;"> '+item.title.toLowerCase()+' </a></li>';
-						//console.log(item.title);
+						suggestions_html+='<li><a href="#" onclick="queryWikipediaApiById(0,0,\''+item.id+'\');return false;"> '+item.title.toLowerCase()+' </a></li>';
 						index++;
 					}
 				});
-//				console.log(suggestions_html);
 				if(suggestionList.length>0) {
 					suggestionList+='<li>&nbsp;</li>';
 				}
 				suggestionList+=suggestions_html;
-				//console.log(suggestionList);
 
 				//openWindow(40, 300,4000,400,250,suggestions_html,'');
 				//openSuggestionBox('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
@@ -932,12 +879,10 @@
 	
 	function sortJSON(data,sortMethod) {
 		var ret;
-		console.log(sortMethod);
 		if(sortMethod=='relatedness') {
 			ret=data.outLinks.sort(function(a,b) { return parseFloat(b.relatedness) - parseFloat(a.relatedness) } );
 		}
 		else {
-			console.log('sort method is title');
 			ret=data.outLinks.sort(function(a,b) { return a.title > b.title ? 1 : -1 } );
 		}
 		return ret;
@@ -945,13 +890,6 @@
 	
 	function save_to_desktop() {
 		var content = $('.window_frame #write_textarea').val();
-		console.log('content '+content);
-		/*$.ajax({
-  			url: "save.php?method=desktop&content="+content,
-			context: document.body
-			}).done(function() { 
-			  console.log('ajax done');
-		});*/
 		window.open("save.php?method=desktop&content="+content,"_self")
 		
 	
@@ -959,15 +897,6 @@
 	
 	function send_email() {
 		var content = $('.window_frame #write_textarea').val();
-		console.log('content '+content);
-		/*$.ajax({
-  			url: "save.php?method=desktop&content="+content,
-			context: document.body
-			}).done(function() { 
-			  console.log('ajax done');
-		});*/
-		
-		//$( "#dialog-form" ).dialog( "open" );
 
 		
 		var to = prompt('email address (separated by comma)');
@@ -989,12 +918,13 @@
 	function contact_email() {
 		var content = $('.window_frame #write_textarea').val();
 		var to = 'chrsmnn@gmail.com';
-		if(to!=null && to!='') {
+		if(to!=null && to!='' && content!='') {
 		  $.ajax({
   			url: "save.php?method=email&content="+content+"&to="+to,
 			context: document.body
 			}).done(function() { 
 			  console.log('ajax done');
+			  alert('thanks');
 		  });
 		}
 		
@@ -1010,6 +940,20 @@
                 return true;
             }
         }
+    
+    var searchHintCount = 0;
+    
+    function searchHint(focus) {
+        if(focus && searchHintCount<3 && searchCount>0) {
+            $('.search_hint').show();
+            searchHintCount++;
+        }
+        else {
+            $('.search_hint').hide();
+        }
+        
+    
+    }
 	
 	
 </script>
@@ -1019,7 +963,12 @@
 
 		
 	<div class="search_input">
-		<input type="text" class="search_box" tabindex="0" onkeyup="if (event.keyCode == 13) {search(this);}"/>
+		<input type="text" class="search_box" tabindex="0" onkeyup="if (event.keyCode == 13) {search(this);}" 
+		    onfocus="searchHint(true);"  onblur="searchHint(false);" />
+		<ul class="search_hint">
+		    <li>searchterm</li>
+		    <li>author, searchterm</li>
+		</ul>
 	</div>
 		
  
@@ -1039,7 +988,7 @@
 			<ul class="save-options">
 					<li><a href="#" onclick="save_to_desktop();return false;">desk</a></li>
 					<li><a href="#" onclick="send_email();return false;">email</a></li>
-					<li><a href="#" onclick="contact_email();return false;">contact</a></li>
+					<li><a href="#" onclick="contact_email();return false;">contact/add</a></li>
 			</ul>
 			</span>
 			<div id="twitter_result"></div>

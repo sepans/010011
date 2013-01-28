@@ -1,5 +1,5 @@
-		body { /*background-color: #FFF;*/ padding: 0; margin: 0; color: #000; 
-			font-family:Lucida Console, Monaco, sans-serif; font-size: 11px; width: 1000px; overflow: hidden;}
+		body { padding: 0; margin: 0; color: #000; 
+			font-family: arial, sans-serif, Console, Monaco,; font-size: 11px; width: 1000px; overflow: hidden;}
 		li {list-style: none;}
 /*	
        div {
@@ -128,9 +128,11 @@
 		.result_container a {text-decoration: underline;}
 		.result_container .results_box a {text-decoration: none;}
 		
-		.highlight { color: #777; background-color: #F8F8F8; }
+		.highlight { color: #777; background-color: #F8F8F8; text-decoration: underline;}
 		
 		.results_box .highlight {background-color: #FFF; color: #555;}
+        .text_section .highlight { text-decoration: underline;}
+        .results_box .highlight { text-decoration: none;}
 		
 		#tooltip { position: fixed; bottom: 5px; left: 5px;  display: none; z-index: 100;} 
 		
@@ -197,3 +199,6 @@
 	.wikify_slider { width: 100px; margin: -2px 0 4px 20px; }
 	
 	.wm_wikifiedLink { color: #888; background-color: #E8E8E8; opacity: 0.9;}
+	
+	.search_hint { padding: 1px; margin: 5px 0 0 5px; width: 150px; display: none; background-color:#FEFEAA; 
+	        border: 1px dotted #AAA; font-family: arial; font-size: 11px;box-shadow: 5px 5px 4px #999;}
