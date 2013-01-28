@@ -81,16 +81,28 @@ print $json;
 <?php
    function getAllAppearences($word, $body) {
 		$results = array();
-
+		$secondWord = '';
+        if(strpos($word," ")>0) {
+           // echo 'second';
+           list($word,$secondWord) = split(" ",$word);
+           // $secondWord = explode(" ", $word)[1];
+           // $word = explode(" ", $word)[0];
+        }
 		$words = explode(" ", $body);
+		
 		$keys = array_keys( $words,$word);
 		for($keyCount = 0; $keyCount < count($keys) ; $keyCount++) {
 			$string = "";
+			$hasSecondWord = false;
 			$index = $keys[$keyCount];
 			for ($i = $index-10; $i < $index+10; $i++) {
+			    if($i>0 && $words[$i]==$secondWord)
+		           $hasSecondWord=true;
 				$string = $string.$words[$i]." ";
 			}
-			$results[] = array(index=> $keyCount, wordIndex=> $index, sentence=> '...'.$string.'...');
+			if(strlen($secondWord)==0 || $hasSecondWord==true) {
+    			$results[] = array(index=> $keyCount, wordIndex=> $index, sentence=> '...'.$string.'...');
+    		}
 		}
 	//	$string = $words[$index - 1]." ".$words[$index - 1]." ".$words[$index - 1]." ".$words[$index - 1]." ".
 	//				$words[$index]." ".$words[$index + 1];
