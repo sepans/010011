@@ -5,7 +5,7 @@
 //	header("Content-Type: application/json");
 	
     MySQL_connect("localhost", "root", "letmein");
-    $link = MySQL_select_db("jm");
+    $link = MySQL_select_db("jm2");
 	$word = $_GET['keyword'];
 	if($word == null)
 		$word = 'being';
@@ -13,7 +13,7 @@
 	if (!$link) {
 		die('Not connected : ' . mysql_error());
 	}
-    $search_query = "SELECT id, title , body, author FROM articles order by author";
+    $search_query = "SELECT id, title , author FROM articles order by author";
 	
 
 	$res = MySQL_query($search_query);
@@ -42,6 +42,7 @@ while($r = mysql_fetch_assoc($res)) {
 	}
 
     //$rows[] = $strings;*/
+   // echo $r['author'].' ';
     $rows[] = $r;
 }
 

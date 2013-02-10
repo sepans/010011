@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>chrsmnn sepans 1</title>
+	<title>machine for making sense</title>
 		
 	<script type="text/javascript" src="js/jquery-1.7.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
@@ -88,7 +88,7 @@
 	var greenEndpointOptions = { endpoint:"Rectangle",
 			paintStyle:{ width:25,height: 20,  fillStyle:'#555' },
 			isSource:true,
-			connectorStyle : { strokeStyle:"#147C04" },
+			connectorStyle : { strokeStyle:"#00FF00" },
 			isTarget:true, 
 			anchor: "TopCenter"
 			};
@@ -97,6 +97,13 @@
 	
 		//openFirstBox();
 		//openWriteBox();
+		var url = document.URL;
+		if(url.indexOf('010011')>0) {
+		    document.title= 'machine for making sense';
+		}
+		else {
+		    document.title='010011';
+		}
 		
 		$('.search_box').focus();
 		$('.search_box').select();
@@ -131,17 +138,16 @@
 				
 				   var sourceWord = info.source.text();
 				   var targetWord = info.target.text();
-				   		$.getJSON("search_all.php?keyword="+sourceWord, function(data1) {
+				   		$.getJSON("search_all2.php?keyword="+sourceWord+"&max=10", function(data1) {
 				   			
-							$.getJSON("search_all.php?keyword="+targetWord, function(data2) {
+							$.getJSON("search_all2.php?keyword="+targetWord+"&max=10", function(data2) {
 
 								var result1= data1[Math.floor(Math.random()*data1.length)];
 								
 								var result2= data2[Math.floor(Math.random()*data2.length)];
 								
-								$.getJSON("search.php?id="+result1.id+"&wordIndex="+result1.wordIndex, function(para1) {
-										console.log(para1);									
-									$.getJSON("search.php?id="+result2.id+"&wordIndex="+result2.wordIndex, function(para2) {
+								$.getJSON("search2.php?id="+result1.id+"&wordIndex="+result1.wordIndex, function(para1) {
+									$.getJSON("search2.php?id="+result2.id+"&wordIndex="+result2.wordIndex, function(para2) {
 
 											var length = Math.round((para1[0].body.length + para2[0].body.length) /2);
 
@@ -154,7 +160,6 @@
 									
 												  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont ,  '','red_text');	
 												  var height = blueGrid.window.getContainer().find('.red_text_cont').height();
-												  console.log('win h '+height);
 												  blueGrid.window.resize(WINDOW_WIDTH,height+40);	
 												 // '.window_frame'
 												  $(blueGrid.window.getContainer()).find('.window_frame').height(height+30);
@@ -369,7 +374,7 @@
 		//	console.log('term '+term+' author '+author);
 		}
 	
-		$.getJSON("search_all.php?keyword="+term+"&author="+author, searchCallback(term));
+		$.getJSON("search_all2.php?keyword="+term+"&author="+author, searchCallback(term));
 		//$(searchBox.offsetParent).find('.change_to_note').css('display','none');
 		$.getJSON("http://search.twitter.com/search.json?rpp=5&include_entities=true&result_type=mixed&lang=en&q="+term+"&callback=?", searchTwitterCallback());
 		
@@ -425,7 +430,7 @@
 					author = item.author;
 				
 				}
-				result=result+'<li><a href="#" onclick="list_titles(this,\''+item.author+'\');return false;">'+item.author+'</a>, '
+				result=result+'<li><a href="#" onclick="list_titles(this,\''+item.author+'\',\''+term+'\');return false;">'+item.author+'</a>, '
 								 +'<a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+',\''+term+'\');return false;">'+item.title+"</a>";
 				result=result+'<input type="hidden" id="search_result_hidden_index" value="'+item.wordIndex+'"/>';
 				result=result+'<p>'+item.sentence+'</p></li>';
@@ -509,8 +514,9 @@
 	function search_result(result,article_id,wordIndex,term)
 	{
 		
+		console.log(term);
 		var target = result.parentNode.parentNode;//.parentNode;
-		$.getJSON("search.php?id="+article_id+"&wordIndex="+wordIndex, searchResultCallback($(target),term));
+		$.getJSON("search2.php?id="+article_id+"&wordIndex="+wordIndex, searchResultCallback($(target),term,(wordIndex==-1) ? true : false));
 
 		//result.parentNode.parentNode.parentNode.innerHTML = $('#desc_window .window_container').html();
 		return false;
@@ -520,13 +526,19 @@
 
 
 	
-	function searchResultCallback(target,term) {
+	function searchResultCallback(target,term, largeText ) {
 		return function(data) {
+		
 			var dataItem = data[0];
 			var result = '';
 			var body = dataItem.body;
+			var divclass = 'text_section';
+			if(largeText) {
+			    divclass= divclass+ ' large_text_section';
+			}
 			body.replace(/â€™/g,'\'')
-			result = '<div class="wikify_slider"></div><div class="text_section"><h2>'+dataItem.title+'</h2><p>'+body+'</p></div>';
+//			result = '<div class="wikify_slider"></div><div class="text_section"><h2>'+dataItem.title+'</h2><p>'+body+'</p></div>';
+			result = '<div class="wikify_slider"></div><div class="'+divclass+'"><h2>'+dataItem.title+'</h2><p>'+body+'</p></div>';
 			
 			//<input class="local_search" onkeyup="if (event.keyCode == 13) {localSearch(this);}"/>
 			
@@ -585,6 +597,8 @@
 			
 		   }
 		});
+		
+		$(window.getContainer()).find('.wikify_slider a').attr('title','slide for relevance');
 		
 		if(term!='') {
 			$(window.getContainer()).find('.text_section p').highlight(term, {wordsOnly: true});
@@ -647,7 +661,7 @@
 	      	jsPlumb.addEndpoint($("#"+window.attr('id')+" .highlight"), endpointOptions);
 	  	}
     		 
-        console.log($("#"+window.attr('id')+" .wm_wikifiedLink"))
+        //console.log($("#"+window.attr('id')+" .wm_wikifiedLink"))
 	  	//for wikified terms
 	  	jsPlumb.addEndpoint($("#"+window.attr('id')+" .wm_wikifiedLink"), redEndpointOptions);
 		 
@@ -753,7 +767,7 @@
 
 		var target = descriptionWindow[windowIndex-1].getFrame().find('ul');
 
-		$.getJSON("search.php?id="+article_id+"", searchResultCallback(target));
+		$.getJSON("search2.php?id="+article_id+"", searchResultCallback(target));
 
 		
 		//descriptionWindow[windowIndex-1]
@@ -762,7 +776,7 @@
 		
 
 
-	function list_titles(result,author)
+	function list_titles(result,author,term)
 	{
 		//alert(result.nextElementSibling.value);
 
@@ -772,14 +786,14 @@
 		//grid.changeMode('search_result');
 		
 		var target = result.parentNode.parentNode;//.parentNode;
-		$.getJSON("list.php", listTitlesCallback($(target),author));
+		$.getJSON("list.php", listTitlesCallback($(target),author,term));
 
 		//result.parentNode.parentNode.parentNode.innerHTML = $('#desc_window .window_container').html();
 		return false;
 	}
 
 	
-	function listTitlesCallback(target,author) {
+	function listTitlesCallback(target,author,term) {
 		return function(data) {
 
 			var result = '<ul class="title_list">';
@@ -790,7 +804,7 @@
 					prevAuthor = value.author;
 					anchor = '<a name="'+value.author+'"/>';
 				}
-				result += '<li>'+anchor+'<a href="#" onclick="search_result(this,'+value.id+');return false">'+value.author+' '+value.title+'</a></li>';
+				result += '<li>'+anchor+'<a href="#" onclick="search_result(this,'+value.id+',-1,\''+term+'\');return false">'+value.author+', '+value.title+'</a></li>';
 			
 			});
 			result +='</ul>';
@@ -973,6 +987,7 @@
 		    onfocus="searchHint(true);"  onblur="searchHint(false);" />
 		<ul class="search_hint">
 		    <li>searchterm</li>
+		    <li>searchterm searchterm</li>
 		    <li>author, searchterm</li>
 		</ul>
 	</div>
@@ -989,15 +1004,19 @@
 			<textarea class="write_note_box" id="write_textarea">&nbsp;</textarea>
 			
 			<!--<a href="#" onclick="addSelectionToBox()">Add selection to notes</a>-->
-			<span class="save">
-				<!--<a href="#" >&nbsp;</a>-->
-			<ul class="save-options">
-					<li><a href="#" onclick="save_to_desktop();return false;">desk</a></li>
-					<li><a href="#" onclick="send_email();return false;">email</a></li>
-					<li><a href="#" onclick="contact_email();return false;">contact/add</a></li>
-			</ul>
 			</span>
-			<div id="twitter_result"></div>
+			<div class="twitter_container">
+                <span class="save">
+                        <!--<a href="#" >&nbsp;</a>-->
+                    <ul class="save-options">
+                            <li><a href="#" onclick="save_to_desktop();return false;">desk</a></li>
+                            <li><a href="#" onclick="send_email();return false;">email</a></li>
+                            <li><a href="#" onclick="contact_email();return false;">contact/add</a></li>
+                    </ul>
+                </span>
+
+                <div id="twitter_result"></div>
+            </div>
 			
 		</div>
 	</div>
