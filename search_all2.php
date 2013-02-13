@@ -4,7 +4,7 @@
 	
 //	header("Content-Type: application/json");
 	
-    MySQL_connect("localhost", "root", "letmein");
+    MySQL_connect("localhost", "jm2_user", "jmLetmein00");
     $link = MySQL_select_db("jm2");
 	$word = $_GET['keyword'];
 	$author = $_GET['author'];
@@ -56,6 +56,8 @@
     //echo $ratio;
     $doc_count = 0;
     
+    $prevAuthor = '';
+    
     while($r = mysql_fetch_assoc($res)) {
     
       	if($ratio<1) {
@@ -63,6 +65,12 @@
 			if($rand>$ratio) {
 		        continue;	
 			}
+		}
+		
+        // one text per author
+        
+		if($num_result>MAX_SEARCH_RESULTS && strcmp($r['author'],$prevAuthor)==0)  {
+		    continue;
 		}
 		
 	   $doc_count++;
@@ -77,6 +85,8 @@
        $score = $r['score'];
        $body = $r['body'];
        $author = $r['author'];
+       
+       $prevAuthor=$author;
        
     //   $words = explode(" ", $body);
     
@@ -120,11 +130,11 @@
 		$startingPoint = 0;
 		$endPoint = count($keys);
 		
-	/*	if(count($keys)>50) {
+		if(count($keys)>50) {
 		    $startingPoint = rand(0,count($keys)-10);
 		    $endPoint = rand($startingPoint, count($keys));
 		}
-		*/
+		
 		
 		for($keyCount = $startingPoint; $keyCount < $endPoint  ; $keyCount++) {
 			$string = "";

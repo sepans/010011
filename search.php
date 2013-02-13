@@ -4,7 +4,7 @@
 	
 	header("Content-Type: application/json");
 	
-    MySQL_connect("localhost", "root", "letmein");
+    MySQL_connect("localhost", "jm2_user", "jmLetmein00");
     $link = MySQL_select_db("jm");
 	$word = $_GET['keyword'];
 	$id = $_GET['id'];

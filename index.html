@@ -420,38 +420,50 @@
 				var result = '';
 				
 				
-
+              //  console.log (author+' '+item.author+' ?= '+ (author==item.author));
+				/*
 				if(author==item.author) {
-					authorCount++;
 					resultPerAuthorCount++;
+					ignoredResults++;
+					
+					return true; // for one result per author
 				}
 				else {
+					authorCount++;
 					resultPerAuthorCount = 0;
-					author = item.author;
 				
 				}
+				author = item.author;
+				*/
+				
 				result=result+'<li><a href="#" onclick="list_titles(this,\''+item.author+'\',\''+term+'\');return false;">'+item.author+'</a>, '
 								 +'<a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+',\''+term+'\');return false;">'+item.title+"</a>";
 				result=result+'<input type="hidden" id="search_result_hidden_index" value="'+item.wordIndex+'"/>';
 				result=result+'<p>'+item.sentence+'</p></li>';
 				
 				if(ratio<1) {
-					if(Math.random()<ratio) {
-					
-						results=results+result;
-						acceptedResults++;
-						resultsPerBox++;
-					}
-					else {
-						ignoredResults++;
-						}
-				
+				    if(author==item.author) {
+				        ignoredResults++;
+				    }
+				    else {
+                        if(Math.random()<1) {
+                        
+                            results=results+result;
+                            acceptedResults++;
+                            resultsPerBox++;
+                        }
+                        else {
+                            ignoredResults++;
+                            }
+                    }				
 				}
 				else {
 					results=results+result;
 					resultsPerBox++;
 					acceptedResults++;
 				}
+				
+				author = item.author;
 				
 				if(resultsPerBox>MAX_RESULTS_PER_BOX || ignoredResults+acceptedResults==data.length) {
 				 	//console.log(resultsPerBox+' max: ' +MAX_RESULTS_PER_BOX);
