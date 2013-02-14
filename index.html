@@ -62,6 +62,8 @@
 	
 	var linksMade = 0;
 	
+	var no_action = true;
+	
 	var BY_TERM_JSON = '/proxy.php?proxy_url='+'http://wikipedia-miner.cms.waikato.ac.nz/services/exploreArticle?outLinks=true%26parentCategories=true%26linkRelatedness=true%26responseFormat=json%26title=';
 
 	var THES_JSON = '/proxy.php?proxy_url=http://words.bighugelabs.com/api/2/173aaf6b8cc559ac582b75f5ef7a8c8c/';
@@ -104,6 +106,23 @@
 		else {
 		    document.title='010011';
 		}
+		
+		setTimeout(function() {
+		    if(no_action) {
+                $('.hint_screenshot').css('display','block');		    
+                $('.hint_screenshot').animate({'opacity':1},2000);		    
+                setTimeout(function() {
+                    if(no_action) {
+                        $('.hint_screenshot').animate({'opacity':0},2000,function() {
+                            $('.hint_screenshot').css('display','none');		    
+                            
+                        });		    
+                    
+                    }
+                },5000);
+		    
+		    }
+		},10000);
 		
 		$('.search_box').focus();
 		$('.search_box').select();
@@ -355,6 +374,7 @@
 	
 	function search(searchBox)
 	{
+	    no_action = false;
 		var term = searchBox.value;
 		searchByTerm(term);
 		
@@ -1042,6 +1062,8 @@
 	<div id="tooltip" class="ui-corner-all">
 <div class="loading"></div>
 </div>
+
+<div class="hint_screenshot"></div>
 
 	
 

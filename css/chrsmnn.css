@@ -211,3 +211,5 @@
 	
 	.search_hint { padding: 1px; margin: 5px 0 0 5px; width: 150px; display: none; background-color:#FEFEAA; 
 	        border: 1px dotted #AAA; font-family: arial; font-size: 11px;box-shadow: 5px 5px 4px #999; color: #555;}
+	        
+    .hint_screenshot { display: none; opacity: 0; position: absolute; top: 7px; right: 10px; background: url('../images/screen.png') top right no-repeat; width: 100%; height: 100%;}
