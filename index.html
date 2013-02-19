@@ -99,6 +99,9 @@
 	
 		//openFirstBox();
 		//openWriteBox();
+		
+		 //typeInSearch();	
+		 
 		var url = document.URL;
 		if(url.indexOf('010011')>0) {
 		    document.title= 'machine for making sense';
@@ -114,7 +117,13 @@
                 setTimeout(function() {
                     if(no_action) {
                         $('.hint_screenshot').animate({'opacity':0},2000,function() {
-                            $('.hint_screenshot').css('display','none');		    
+                            $('.hint_screenshot').css('display','none');
+                           setTimeout(function() {
+                                
+                                if(no_action && $('#search_box').val().length==0) {
+                                    typeInSearch();		    
+                                }
+                            },5000);
                             
                         });		    
                     
@@ -160,43 +169,41 @@
 				   		$.getJSON("search_all2.php?keyword="+sourceWord+"&max=10", function(data1) {
 				   			
 							$.getJSON("search_all2.php?keyword="+targetWord+"&max=10", function(data2) {
+							
+							    if(result1==undefined || result1==undefined) {
+							        var len = sourceTxt.length<200 ? sourceTxt.length : sourceTxt.length*0.6;
+							        $.ajax({
+                                            url: 'markov.php?order=5&begining='+sourceWord+'&length='+len+'&content='+sourceTxt,
+                                            context: document.body
+                                            }).done(function(data) { 
+                                                generateMarkov(data,x,y,sourceWord,targetWord,info);
+									});	
+							    }
+							    else {
 
-								var result1= data1[Math.floor(Math.random()*data1.length)];
-								
-								var result2= data2[Math.floor(Math.random()*data2.length)];
-								
-								$.getJSON("search2.php?id="+result1.id+"&wordIndex="+result1.wordIndex, function(para1) {
-									$.getJSON("search2.php?id="+result2.id+"&wordIndex="+result2.wordIndex, function(para2) {
-
-											var length = Math.round((para1[0].body.length + para2[0].body.length) /2);
-
-
-											$.ajax({
-												url: 'markov.php?order=5&begining='+sourceWord+'&length='+length+'&content='+para1[0].body+' '+para2[0].body,
-												context: document.body
-												}).done(function(data) { 
-												  var textCont = "<div class='red_text_cont'>..."+data+"...</div>"; 
-									
-												  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont ,  '','red_text');	
-												  var height = blueGrid.window.getContainer().find('.red_text_cont').height();
-												  blueGrid.window.resize(WINDOW_WIDTH,height+40);	
-												 // '.window_frame'
-												  $(blueGrid.window.getContainer()).find('.window_frame').height(height+30);
-												  
-												  $(blueGrid.window.getContainer()).find('.window_frame').highlight(sourceWord);
-												  $(blueGrid.window.getContainer()).find('.window_frame').highlight(targetWord);
-												  
-												  jsPlumb.addEndpoint($("#"+blueGrid.window.getContainer().attr('id')+" .highlight"), greenEndpointOptions);
-			 
-												  jsPlumb.draggable(blueGrid.window.getContainer());
-
-										
-												  blueTexts[info.source]=blueGrid;
-										  });								
-									
-									});
-								
-								});
+                                    var result1= data1[Math.floor(Math.random()*data1.length)];
+                                    
+                                    var result2= data2[Math.floor(Math.random()*data2.length)];
+                                    
+                                    $.getJSON("search2.php?id="+result1.id+"&wordIndex="+result1.wordIndex, function(para1) {
+                                        $.getJSON("search2.php?id="+result2.id+"&wordIndex="+result2.wordIndex, function(para2) {
+                                                
+                                                //console.log('paragraphs '+para1.length+' '+para2.length);
+                                                
+                                                var length = Math.round((para1[0].body.length + para2[0].body.length) /2);
+    
+    
+                                                $.ajax({
+                                                    url: 'markov.php?order=5&begining='+sourceWord+'&length='+length+'&content='+para1[0].body+' '+para2[0].body,
+                                                    context: document.body
+                                                    }).done(function(data) { 
+                                                     generateMarkov(data,x,y,sourceWord,targetWord,info);
+                                              });								
+                                        
+                                        });
+                                    
+                                    });
+                                }
 				   			
 				   				
 				   			});
@@ -271,6 +278,51 @@
 	
 	
 	}); 
+	
+	function generateMarkov(data,x,y,sourceWord,targetWord,info) {
+    
+    	 var textCont = "<div class='red_text_cont'>..."+data+"...</div>"; 
+									
+          var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont ,  '','red_text');	
+          var height = blueGrid.window.getContainer().find('.red_text_cont').height();
+          blueGrid.window.resize(WINDOW_WIDTH,height+40);	
+         // '.window_frame'
+          $(blueGrid.window.getContainer()).find('.window_frame').height(height+30);
+          
+          $(blueGrid.window.getContainer()).find('.window_frame').highlight(sourceWord);
+          $(blueGrid.window.getContainer()).find('.window_frame').highlight(targetWord);
+          
+          jsPlumb.addEndpoint($("#"+blueGrid.window.getContainer().attr('id')+" .highlight"), greenEndpointOptions);
+
+          jsPlumb.draggable(blueGrid.window.getContainer());
+
+
+          blueTexts[info.source]=blueGrid;
+	
+	}
+	
+	
+	function typeInSearch() {
+        var sampleWord = 'search';
+        var interval = 400;
+        $('#search_box').val('');
+	    showText('#search_box',sampleWord,0,interval);
+	    setTimeout(function() {
+	        search($('#search_box'));
+	    },interval*(sampleWord.length+2));
+	    
+//	    alert('search');
+        
+	}
+	
+	
+	var showText = function (target, message, index, interval) {   
+      if (index < message.length) {
+        var content =   $(target).val();
+        $(target).val(content+message[index++]);
+        setTimeout(function () { showText(target, message, index, interval); }, interval);
+      }
+    }   
 	
 
 	
@@ -375,7 +427,7 @@
 	function search(searchBox)
 	{
 	    no_action = false;
-		var term = searchBox.value;
+		var term = $('#search_box').val(); //searchBox.value;
 		searchByTerm(term);
 		
 		openWriteBox();
@@ -456,10 +508,11 @@
 				author = item.author;
 				*/
 				
-				result=result+'<li><a href="#" onclick="list_titles(this,\''+item.author+'\',\''+term+'\');return false;">'+item.author+'</a>, '
-								 +'<a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+',\''+term+'\');return false;">'+item.title+"</a>";
+//				result=result+'<li><a href="#" onclick="list_titles(this,\''+item.author+'\',\''+term+'\');return false;">'+item.author+'</a>, '
+//								 +'<a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+',\''+term+'\');return false;">'+item.title+"</a>";
+				result=result+'<li>'+item.author+', '+item.title;
 				result=result+'<input type="hidden" id="search_result_hidden_index" value="'+item.wordIndex+'"/>';
-				result=result+'<p>'+item.sentence+'</p></li>';
+				result=result+'<p><a href="#" onclick="search_result(this,'+item.id+','+item.wordIndex+',\''+term+'\');return false;">'+item.sentence+'</a></p></li>';
 				
 				if(ratio<1) {
 				    if(author==item.author) {
@@ -491,13 +544,13 @@
 					
 					var height =   WINDOW_HEIGHT+Math.random()*40 ;
 					
-					var windowX = boxCount*(WINDOW_WIDTH)*.91+(searchCount%2)*WINDOW_WIDTH/2+10;//+Math.random()*40;
+					var windowX = boxCount*(WINDOW_WIDTH)*.91+(searchCount%2)*WINDOW_WIDTH/2+10;
 					
-					var windowY = 55+Math.random()*30-15+searchCount*100;
+					var windowY = 55+Math.random()*30-15+(searchCount%4)*100;
 					
 					if(windowX+WINDOW_WIDTH+20>$(document).width()) {
 						
-						windowY+= 120;
+						windowY+= 50;
 						windowX=windowX%$(document).width();
 						
 					}
@@ -546,7 +599,6 @@
 	function search_result(result,article_id,wordIndex,term)
 	{
 		
-		console.log(term);
 		var target = result.parentNode.parentNode;//.parentNode;
 		$.getJSON("search2.php?id="+article_id+"&wordIndex="+wordIndex, searchResultCallback($(target),term,(wordIndex==-1) ? true : false));
 
@@ -570,7 +622,10 @@
 			}
 			body.replace(/â€™/g,'\'')
 //			result = '<div class="wikify_slider"></div><div class="text_section"><h2>'+dataItem.title+'</h2><p>'+body+'</p></div>';
-			result = '<div class="wikify_slider"></div><div class="'+divclass+'"><h2>'+dataItem.title+'</h2><p>'+body+'</p></div>';
+
+            // todo correct item.autor
+            
+			result = '<div class="'+divclass+'"><h2><a href="#" onclick="list_titles(this,\''+term+'\',\''+dataItem.author+'\');return false;">'+dataItem.author+'</a>, <a href="#" onclick="search_result(this,'+dataItem.id+',-1,\''+term+'\');return false">'+dataItem.title+'</a></h2><div class="wikify_slider"></div><p>'+body+'</p></div>';
 			
 			//<input class="local_search" onkeyup="if (event.keyCode == 13) {localSearch(this);}"/>
 			
@@ -622,7 +677,8 @@
 		$(window.getContainer()).find('.wikify_slider').slider({max: 100, value: 0,
 	  		 stop: function(event, ui) {
 
-			var targetBox = $(event.target).parent().find('.text_section p');
+			var targetBox = $(event.target).parents('.window_frame').find('.text_section p');
+            
 			var text = targetBox.text();
 			var prob = 1-ui.value/100;
 			wikifyText(text,prob,targetBox);
@@ -659,9 +715,9 @@
 	function wikifyText(text,probability,target) {
 		
 			var proxy_url = '/proxy.php?proxy_url=http://wikipedia-miner.cms.waikato.ac.nz/services/wikify';
-			
-			$.post(proxy_url, {source: text.substring(0,10000), minProbability : probability, repeatMode: 'ALL',
-			responseFormat: 'DIRECT', linkFormat: 'html_id_weight', tooltips: true, },
+			var params ={source: text.substring(0,10000), minProbability : probability, repeatMode: 'ALL',
+			responseFormat: 'DIRECT', linkFormat: 'html_id_weight', tooltips: true, };
+			$.post(proxy_url, params,
 			//var thisi=0;
 			(function(target) {
 			  return function(data) {
@@ -808,7 +864,7 @@
 		
 
 
-	function list_titles(result,author,term)
+	function list_titles(result,term,author)
 	{
 		//alert(result.nextElementSibling.value);
 
@@ -818,14 +874,14 @@
 		//grid.changeMode('search_result');
 		
 		var target = result.parentNode.parentNode;//.parentNode;
-		$.getJSON("list.php", listTitlesCallback($(target),author,term));
+		$.getJSON("list.php", listTitlesCallback($(target),term,author));
 
 		//result.parentNode.parentNode.parentNode.innerHTML = $('#desc_window .window_container').html();
 		return false;
 	}
 
 	
-	function listTitlesCallback(target,author,term) {
+	function listTitlesCallback(target,term,author) {
 		return function(data) {
 
 			var result = '<ul class="title_list">';
@@ -836,7 +892,7 @@
 					prevAuthor = value.author;
 					anchor = '<a name="'+value.author+'"/>';
 				}
-				result += '<li>'+anchor+'<a href="#" onclick="search_result(this,'+value.id+',-1,\''+term+'\');return false">'+value.author+', '+value.title+'</a></li>';
+				result += '<li>'+anchor+value.author+', <a href="#" onclick="search_result(this,'+value.id+',-1,\''+term+'\');return false">'+value.title+'</a></li>';
 			
 			});
 			result +='</ul>';
@@ -855,7 +911,6 @@
 			left=left-2*WINDOW_WIDTH;
 		}
 		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
-		
 		
 		scrollToAnchor(author, $(grid.window.getContainer()).find('.window_frame'),grid.window.getContainer().attr('id'));
 		//var window = grid.window;
@@ -1015,7 +1070,7 @@
 
 		
 	<div class="search_input">
-		<input type="text" class="search_box" tabindex="0" onkeyup="if (event.keyCode == 13) {search(this);}" 
+		<input type="text" class="search_box" id="search_box" tabindex="0" onkeyup="if (event.keyCode == 13) {search(this);}" 
 		    onfocus="searchHint(true);"  onblur="searchHint(false);" />
 		<ul class="search_hint">
 		    <li>searchterm</li>

@@ -205,7 +205,7 @@
 
 	.ui-slider-horizontal .ui-slider-handle {/*background-color: #000;*/cursor: ew-resize; border-right: 1px solid #000; width: 4px; height: 10px; top: 2px; margin-left: 0;}
 	.ui-slider-horizontal {border-bottom: 1px solid #BBB;}
-	.wikify_slider { width: 100px; margin: -2px 0 4px 20px; }
+	.wikify_slider { width: 100px; margin: 3px 0 3px 0px; }
 	
 	.wm_wikifiedLink { color: #888; background-color: #E8E8E8; opacity: 0.9;}
 	
@@ -213,3 +213,5 @@
 	        border: 1px dotted #AAA; font-family: arial; font-size: 11px;box-shadow: 5px 5px 4px #999; color: #555;}
 	        
     .hint_screenshot { display: none; opacity: 0; position: absolute; top: 7px; right: 10px; background: url('../images/screen.png') top right no-repeat; width: 100%; height: 100%;}
+    
+    .text_section h2 a:hover { text-decoration: underline;}

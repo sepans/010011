@@ -40,7 +40,7 @@
 				)) AS sentence
 				FROM articles
 				where  INSTR(body, '$word')> 0 order by score desc";*/
-	$body_query = "SELECT id, title , body from articles where id = $id";
+	$body_query = "SELECT id, title ,author, body from articles where id = $id";
 /*	if($word !=null)	
 		$query = $search_query;*/
 	if($id !=null)	
