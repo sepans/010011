@@ -97,7 +97,12 @@
 
 		$(document).ready( function() {
 		
-		//alert(window.navigator.sayswho);
+	    var saywho = window.navigator.sayswho;
+		if(saywho[0]=="MSIE" || saywho[0]=="IE") {
+		
+		    alert("machine for making sense has been designed and tested on Firefox and Chrome");
+		}
+		
 	
 		//openFirstBox();
 		//openWriteBox();
@@ -723,7 +728,7 @@
 		
 			var proxy_url = '/proxy.php?proxy_url=http://wikipedia-miner.cms.waikato.ac.nz/services/wikify';
 			var params ={source: text.substring(0,10000), minProbability : probability, repeatMode: 'ALL',
-			responseFormat: 'DIRECT', linkFormat: 'html_id_weight', tooltips: true, };
+			responseFormat: 'DIRECT', linkFormat: 'html_id_weight', tooltips: true };
 			$.post(proxy_url, params,
 			//var thisi=0;
 			(function(target) {
