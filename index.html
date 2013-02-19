@@ -170,7 +170,12 @@
 				   			
 							$.getJSON("search_all2.php?keyword="+targetWord+"&max=10", function(data2) {
 							
-							    if(result1==undefined || result1==undefined) {
+							    if(result1==undefined || result2==undefined) {
+							       // console.log('local synth');
+							        if(sourceTxt.length>2000) {
+							            sourceTxt = sourceTxt.substring(0,2000);
+							           // console.log(sourceTxt);   
+							        }
 							        var len = sourceTxt.length<200 ? sourceTxt.length : sourceTxt.length*0.6;
 							        $.ajax({
                                             url: 'markov.php?order=5&begining='+sourceWord+'&length='+len+'&content='+sourceTxt,

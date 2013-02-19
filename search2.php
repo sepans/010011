@@ -120,7 +120,7 @@
 
             $text_length = strLen($section);
             
-            $new_length = $text_length>2000 ? round($text_length*0.1) : $text_length;
+            $new_length = $text_length>2000 ? min(round($text_length*0.1),2000) : $text_length;
           //  echo $text_length.' ';
           //  echo $new_length.' ';
             
