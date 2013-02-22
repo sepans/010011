@@ -1,11 +1,11 @@
 <?php
 
+    include 'connection.php'; 
+
 	include 'array_to_json.php';
 	
 	header("Content-Type: application/json");
 	
-    MySQL_connect("localhost", "jm2_user", "jmLetmein00");
-    $link = MySQL_select_db("jm2");
 	$word = $_GET['keyword'];
 	$id = $_GET['id'];
 	$wordIndex = $_GET['wordIndex'];
