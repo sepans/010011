@@ -10,8 +10,12 @@
 	<script type="text/javascript" src="js/grid.js"></script>
 	
 	<script type="text/javascript" src="js/jquery.jsPlumb-1.3.16-all.js"></script>
+	<script type="text/javascript" src="js/jquery.ba-dotimeout.min.js"></script>
 	
-	<script type="text/javascript" src="https://raw.github.com/kakiray/txtwiki.js/master/txtwiki.js"></script>
+	<script type="text/javascript" src="js/txtwiki.js"></script>
+	
+	<!--<script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>-->
+
 
 
 
@@ -248,7 +252,7 @@
 						}).done(function(data) { 
 						  var textCont = "<div class='"+color+"_text_cont'>..."+data+"...</div>"; 
 			
-						  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont , '', color+'_text');	
+						  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont , '', color+'_text',false);	
 						  var height = blueGrid.window.getContainer().find('.'+color+'_text_cont').height();
 						  blueGrid.window.resize(WINDOW_WIDTH,height+40);	
 						 // '.window_frame'
@@ -295,7 +299,7 @@
     
     	 var textCont = "<div class='red_text_cont'>..."+data+"...</div>"; 
 									
-          var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont ,  '','red_text');	
+          var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont ,  '','red_text',false);	
           var height = blueGrid.window.getContainer().find('.red_text_cont').height();
           blueGrid.window.resize(WINDOW_WIDTH,height+40);	
          // '.window_frame'
@@ -416,7 +420,7 @@
 		return textContent = grids[gridIndex];
 	}
 
-	function openWindow(x,y,z, width, height , content ,  title, containerClassName) {
+	function openWindow(x,y,z, width, height , content ,  title, containerClassName,resizable) {
 		descriptionWindow[windowIndex] = $.window({
 			title: title!=null ? title : " ",
 			content: content,
@@ -425,6 +429,7 @@
 			height: height,
 			x:  x,
 			y: y,
+			resizable: resizable,
 			containerClass: containerClassName
 		});
 		grids[windowIndex] = new GridElement(windowIndex,descriptionWindow[windowIndex]); 
@@ -567,16 +572,11 @@
 						
 					}
 						
-					var grid = openWindow(windowX, windowY ,2000, WINDOW_WIDTH, height , results ,  '', 'search_container');
+					var grid = openWindow(windowX, windowY ,2000, WINDOW_WIDTH, height , results ,  '', 'search_container',true);
 					var window=grid.window;
 					
 					$(window.getContainer()).find('.results_box p').highlight(term,{wordsOnly: true});
 		
-		 			/*jsPlumb.addEndpoint($("#"+window.getContainer().attr('id')+" .highlight"), endpointOptions);
-		 
-					 jsPlumb.draggable(window.getContainer());
-
-					*/
 					
 					results='';
 					
@@ -633,13 +633,11 @@
 			    divclass= divclass+ ' large_text_section';
 			}
 			body.replace(/â€™/g,'\'')
-//			result = '<div class="wikify_slider"></div><div class="text_section"><h2>'+dataItem.title+'</h2><p>'+body+'</p></div>';
 
             // todo correct item.autor
             
 			result = '<div class="'+divclass+'"><h2><a href="#" onclick="list_titles(this,\''+term+'\',\''+dataItem.author+'\');return false;">'+dataItem.author+'</a>, <a href="#" onclick="search_result(this,'+dataItem.id+',-1,\''+term+'\');return false">'+dataItem.title+'</a></h2><div class="wikify_slider"></div><p>'+body+'</p></div>';
 			
-			//<input class="local_search" onkeyup="if (event.keyCode == 13) {localSearch(this);}"/>
 			
 		
 		var container = $(target).parents('.window_panel');//parent().parent().parent().parent();
@@ -667,7 +665,7 @@
 			left=left-2*WINDOW_WIDTH;
 		}
 	
-		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
+		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box',false);
 		
 		var window = grid.window;
 		
@@ -678,12 +676,13 @@
 		 
 		 var height =$(window.getContainer()).find('.text_section').height()+30; // 30 for input box
 
-		 if(height<1000) {
+		 if(height<800) {
 			 window.resize(WINDOW_WIDTH,height*1.1+20);
 			 $(window.getContainer()).find('.window_frame').height(height+15);
-			
-			  
 	
+		}
+		else {
+		    console.log('large');
 		}
 
 		$(window.getContainer()).find('.wikify_slider').slider({max: 100, value: 0,
@@ -767,6 +766,13 @@
 		 
 		 jsPlumb.draggable(window);
 		 
+		$(window).find('.window_frame').scroll(function () {
+		        $.doTimeout( 'scroll', 1000, function(){
+                     console.log('scroll');
+                    jsPlumb.repaintEverything();
+           });
+        });
+		 
 
          if(linksMade<3) {
              $("#"+window.attr('id')+" .wm_wikifiedLink").attr('title','drag to any other anchor word to synthesize');
@@ -813,11 +819,11 @@
 			plainWiki = plainWiki.substring(0,plainWiki.indexOf('=='));
 			
 			plainWiki=plainWiki.replace(/{{(.*?)}}/g,'');
-//			plainWiki=plainWiki.replace(/{{(.*?)}}/g,'');
 			plainWiki = plainWiki.lastIndexOf('}}')>0 ? plainWiki.substring(plainWiki.lastIndexOf('}}')+2) : plainWiki;
 			plainWiki = plainWiki.lastIndexOf('(disambiguation)')>0 ? plainWiki.substring(plainWiki.lastIndexOf('(disambiguation)')+15) : plainWiki;
 
 //			plainWiki=plainWiki.replace(/|(.*?)|/g,'');
+
 			var result = '<div class="wikify_slider"></div><div class="text_section"><h2>'+data.query.pages[pageId].title+'</h2><p>'+plainWiki+'</p></div>';
 			//var grid =openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT , plainWiki ,  '', 'wiki_box');
 			if(x==0 && y==0) {
@@ -834,7 +840,7 @@
 
 		
 	/// no longer used ?!?!?!
-	
+	/*
 	function localSearch(inputBox) {
 		var term = inputBox.value;
 		$(inputBox).parent().find('.text_section p').highlight(term);
@@ -845,6 +851,7 @@
 		 jsPlumb.draggable(window.getContainer());
 
 	}
+	*/
 
 	function searchResultNewBox(chck,position) {
 	
@@ -922,7 +929,7 @@
 		if(left+WINDOW_WIDTH>$(document).width()) {
 			left=left-2*WINDOW_WIDTH;
 		}
-		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box');
+		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box',true);
 		
 		scrollToAnchor(author, $(grid.window.getContainer()).find('.window_frame'),grid.window.getContainer().attr('id'));
 		//var window = grid.window;
@@ -956,7 +963,6 @@
 					});
 
 				}
-				//openWindow(40, 500,4000,400,250,suggestions_html,'');
                                 if(suggestionList.length>0) {
                                         suggestionList+='<li>&nbsp;</li>';
                                 }
@@ -989,8 +995,6 @@
 				}
 				suggestionList+=suggestions_html;
 
-				//openWindow(40, 300,4000,400,250,suggestions_html,'');
-				//openSuggestionBox('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
 				$('.write_container .suggestions').html('<ul class="wiki_suggestions">'+suggestionList+'</ul>');
 
 			});
