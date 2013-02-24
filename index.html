@@ -252,7 +252,7 @@
 						}).done(function(data) { 
 						  var textCont = "<div class='"+color+"_text_cont'>..."+data+"...</div>"; 
 			
-						  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont , '', color+'_text',false);	
+						  var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont , '', color+'_text',true);	
 						  var height = blueGrid.window.getContainer().find('.'+color+'_text_cont').height();
 						  blueGrid.window.resize(WINDOW_WIDTH,height+40);	
 						 // '.window_frame'
@@ -299,7 +299,7 @@
     
     	 var textCont = "<div class='red_text_cont'>..."+data+"...</div>"; 
 									
-          var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont ,  '','red_text',false);	
+          var blueGrid = openWindow(x,y,2000, WINDOW_WIDTH, WINDOW_HEIGHT ,textCont ,  '','red_text',true);	
           var height = blueGrid.window.getContainer().find('.red_text_cont').height();
           blueGrid.window.resize(WINDOW_WIDTH,height+40);	
          // '.window_frame'
@@ -468,11 +468,11 @@
 		$.getJSON("http://search.twitter.com/search.json?rpp=5&include_entities=true&result_type=mixed&lang=en&q="+term+"&callback=?", searchTwitterCallback());
 		
 		setTimeout(function() {
-			searchWikiminer(term);
+			searchWikiminer(term.toLowerCase());
 		},2000);
 		
 		setTimeout(function() {
-			thesaurusSyns(term);
+			thesaurusSyns(term.toLowerCase());
 		},2000);	
 		
 		suggestionList = '';
@@ -665,7 +665,7 @@
 			left=left-2*WINDOW_WIDTH;
 		}
 	
-		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box',false);
+		var grid =openWindow(left,top,2000, WINDOW_WIDTH, WINDOW_HEIGHT , result ,  '', 'result_box',true);
 		
 		var window = grid.window;
 		
@@ -983,6 +983,9 @@
 				$.getJSON(url, function(data) {
 				json_cache = data;
 				var sortedLinks = sortJSON(data,'relatedness');
+				if(sortedLinks==null) {
+				    return;
+				}
 				var suggestions_html ='';
 				$.each(sortedLinks, function(index,item) {
 					if(index<7) {
@@ -1002,6 +1005,8 @@
 	
 	function sortJSON(data,sortMethod) {
 		var ret;
+		if(data.outLinks==undefined)
+		    return null;
 		if(sortMethod=='relatedness') {
 			ret=data.outLinks.sort(function(a,b) { return parseFloat(b.relatedness) - parseFloat(a.relatedness) } );
 		}

@@ -127,6 +127,9 @@
         }
 		$words = explode(" ", $body);
 		
+		$word = strtolower($word);
+		$words = array_map('strtolower', $words);
+		
 		$keys = array_keys( $words,$word);
 		$startingPoint = 0;
 		$endPoint = count($keys);
