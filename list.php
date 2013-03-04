@@ -2,10 +2,11 @@
 
 	include 'array_to_json.php';
 	
+	include 'connection.php';
+	
 //	header("Content-Type: application/json");
 	
-    MySQL_connect("localhost", "jm2_user", "jmLetmein00");
-    $link = MySQL_select_db("jm2");
+   
 	$word = $_GET['keyword'];
 	if($word == null)
 		$word = 'being';
