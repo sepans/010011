@@ -13,6 +13,8 @@
 	<script type="text/javascript" src="js/jquery.ba-dotimeout.min.js"></script>
 	
 	<script type="text/javascript" src="js/txtwiki.js"></script>
+
+	<script type="text/javascript" src="js/utils.js"></script>
 	
 	<!--<script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>-->
 
@@ -45,6 +47,7 @@
 	
 	</style>
 	<script type="text/javascript">
+
 	var descriptionWindow = [];
 	var grids = [];
 	var writingBox = null;
@@ -52,52 +55,19 @@
 	
 	var suggestionList = '';
 	
-	var WINDOW_WIDTH = 250;
-	var WINDOW_HEIGHT = 300;
-
-	var WRITE_WINDOW_WIDTH = 400;
-	var WRITE_WINDOW_HEIGHT = 250;
 	
 	var searchCount = 0;
 	var openedTextCount = 0; 
 	
-	var MAX_RESULTS_PER_BOX = 15;
-	var MAX_SEARCH_RESULTS = 75;
 	
 	var linksMade = 0;
 	
 	var no_action = true;
 	
-	var BY_TERM_JSON = '/proxy.php?proxy_url='+'http://wikipedia-miner.cms.waikato.ac.nz/services/exploreArticle?outLinks=true%26parentCategories=true%26linkRelatedness=true%26responseFormat=json%26title=';
-
-	var THES_JSON = '/proxy.php?proxy_url=http://words.bighugelabs.com/api/2/173aaf6b8cc559ac582b75f5ef7a8c8c/';
-	
 	var windowIndex = 0;
 	
 	var blueTexts = {};
 	
-	var endpointOptions = { endpoint:"Rectangle",
-			paintStyle:{ width:25,height: 20,  fillStyle:'#555' },
-			isSource:true,
-			connectorStyle : { strokeStyle:"#00F" },
-			isTarget:true, 
-			anchor: "TopCenter"
-			};
-	var redEndpointOptions = { endpoint:"Rectangle",
-			paintStyle:{ width:25,height: 20,  fillStyle:'#555' },
-			isSource:true,
-			connectorStyle : { strokeStyle:"#F00" },
-			isTarget:true, 
-			anchor: "TopCenter"
-			};
-	
-	var greenEndpointOptions = { endpoint:"Rectangle",
-			paintStyle:{ width:25,height: 20,  fillStyle:'#555' },
-			isSource:true,
-			connectorStyle : { strokeStyle:"#00FF00" },
-			isTarget:true, 
-			anchor: "TopCenter"
-			};
 
 		$(document).ready( function() {
 		
@@ -264,7 +234,7 @@
 							  $(blueGrid.window.getContainer()).find('.window_frame').highlight(info.source.text());
 							  $(blueGrid.window.getContainer()).find('.window_frame').highlight(info.target.text());
 													  
-							  jsPlumb.addEndpoint($("#"+blueGrid.window.getContainer().attr('id')+" .highlight"), greenEndpointOptions);
+							  jsPlumb.addEndpoint($("#"+blueGrid.window.getContainer().attr('id')+" .highlight"), GREEN_ENDPOINT_OPTS);
 				 
 							  jsPlumb.draggable(blueGrid.window.getContainer());
 						}
@@ -308,7 +278,7 @@
           $(blueGrid.window.getContainer()).find('.window_frame').highlight(sourceWord);
           $(blueGrid.window.getContainer()).find('.window_frame').highlight(targetWord);
           
-          jsPlumb.addEndpoint($("#"+blueGrid.window.getContainer().attr('id')+" .highlight"), greenEndpointOptions);
+          jsPlumb.addEndpoint($("#"+blueGrid.window.getContainer().attr('id')+" .highlight"), GREEN_ENDPOINT_OPTS);
 
           jsPlumb.draggable(blueGrid.window.getContainer());
 
@@ -702,7 +672,7 @@
 		if(term!='') {
 			$(window.getContainer()).find('.text_section p').highlight(term, {wordsOnly: true});
 			
-			 jsPlumb.addEndpoint($("#"+window.getContainer().attr('id')+" .highlight"), endpointOptions);
+			 jsPlumb.addEndpoint($("#"+window.getContainer().attr('id')+" .highlight"), BLUE_ENDPOINT_OPTS);
 			 
 			 if(linksMade<3) {
     			 $("#"+window.getContainer().attr('id')+" .highlight").attr('title','drag to any other anchor word to link');
@@ -757,12 +727,12 @@
 	  	// for initial term
 	  	if(initialSearchTerm) {
     	  	window.find('.window_frame p').highlight(initialSearchTerm);
-	      	jsPlumb.addEndpoint($("#"+window.attr('id')+" .highlight"), endpointOptions);
+	      	jsPlumb.addEndpoint($("#"+window.attr('id')+" .highlight"), BLUE_ENDPOINT_OPTS);
 	  	}
     		 
         //console.log($("#"+window.attr('id')+" .wm_wikifiedLink"))
 	  	//for wikified terms
-	  	jsPlumb.addEndpoint($("#"+window.attr('id')+" .wm_wikifiedLink"), redEndpointOptions);
+	  	jsPlumb.addEndpoint($("#"+window.attr('id')+" .wm_wikifiedLink"), RED_ENDPOINT_OPTS);
 		 
 		 jsPlumb.draggable(window);
 		 
@@ -799,11 +769,9 @@
 	  
 	  function queryWikipediaApiById(x,y,pageId) {
 	  
-		    var wiki_api = '/proxy.php?proxy_url='+'http://en.wikipedia.org/w/api.php?action=query%26prop=revisions%26rvprop=content%26format=json%26pageids='+pageId;
-			//var wiki_api = 'http://en.wikipedia.org/w/index.php?action=render&title='
 			$.ajax({
 				type: "GET",
-				url: wiki_api,
+				url: WIKI_API_URL+pageId,
 				dataType: "json",
 				success: function(data) {
       			 openWikiWindow(data, x,y,pageId);
@@ -836,22 +804,6 @@
 	  }
 		
 		
-		
-
-		
-	/// no longer used ?!?!?!
-	/*
-	function localSearch(inputBox) {
-		var term = inputBox.value;
-		$(inputBox).parent().find('.text_section p').highlight(term);
-		
-
-		jsPlumb.addEndpoint($(inputBox).parent().find('.text_section p .highlight'), endpointOptions);
-		 
-		 jsPlumb.draggable(window.getContainer());
-
-	}
-	*/
 
 	function searchResultNewBox(chck,position) {
 	
@@ -939,11 +891,6 @@
 		};
 	}
 	
-	function scrollToAnchor(aid, scroll_container,container_id){
-    	var path ="#"+container_id+" a[name='"+ aid +"']";
-    	var aTag = $(path);
-	    scroll_container.animate({scrollTop: aTag.offset().top-80},'fast');
-	}
 
 	
 	
@@ -1003,18 +950,7 @@
 			});
 	}
 	
-	function sortJSON(data,sortMethod) {
-		var ret;
-		if(data.outLinks==undefined)
-		    return null;
-		if(sortMethod=='relatedness') {
-			ret=data.outLinks.sort(function(a,b) { return parseFloat(b.relatedness) - parseFloat(a.relatedness) } );
-		}
-		else {
-			ret=data.outLinks.sort(function(a,b) { return a.title > b.title ? 1 : -1 } );
-		}
-		return ret;
-	}
+
 	
 	function save_to_desktop() {
 		var content = $('.window_frame #write_textarea').val();
@@ -1059,16 +995,7 @@
 	
 	}
 	
-	function checkRegexp( o, regexp, n ) {
-            if ( !( regexp.test( o.val() ) ) ) {
-             //   o.addClass( "ui-state-error" );
-              //  updateTips( n );
-                return false;
-            } else {
-                return true;
-            }
-        }
-    
+
     var searchHintCount = 0;
     
     function searchHint(focus) {
@@ -1084,13 +1011,7 @@
     }
     
     
-     window.navigator.sayswho= (function(){
-      var N= window.navigator.appName, ua= window.navigator.userAgent, tem;
-      var M= ua.match(/(opera|chrome|safari|firefox|msie)\/?\s*(\.?\d+(\.\d+)*)/i);
-      if(M && (tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
-      M= M? [M[1], M[2]]: [N, window.navigator.appVersion,'-?'];
-      return M;
-     })();
+  
 	
 	
 </script>
@@ -1153,4 +1074,6 @@
 	
 
 </body>
+
+</html>
 	
