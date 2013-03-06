@@ -324,12 +324,22 @@
         
 	}
 	
+	var showTextBusy = '';
 	
-	var showText = function (target, message, index, interval,input) {   
+	var showText = function (target, message, index, interval,input) {  
+	  if(!(showTextBusy==message || showTextBusy=='')) {
+	   // console.log('wait 1 second for '+message);
+	   // setTimeout(function () { showText(target, message, index, interval,input); }, 1000);
+	    return;
+	  }
+	  showTextBusy = message; 
       if (index < message.length) {
         var content =   input ? $(target).val() : $(target).text();
         input ? $(target).val(content+message[index++]) : $(target).text(content+message[index++]);
         setTimeout(function () { showText(target, message, index, interval,input); }, interval);
+      }
+      else if(index == message.length) {
+        showTextBusy = '';
       }
     }   
 	
@@ -460,7 +470,9 @@
 	
 	function writeHintMessage(step) {
 	    console.log('hint');
-	    
+	    if(showTextBusy!='') {
+	        return;
+	    }
 	    $('.window_frame #hint_message').show();
 	    $('.window_frame #hint_message').text('');
 	    var hint_array;
@@ -901,6 +913,12 @@
 			}
 			
 			writeHintMessage(data.query.pages[pageId].title);
+			setTimeout(function () {
+			    console.log('remove eliza');
+			    if(showTextBusy=='') {
+			        $('.window_frame #hint_message').text('');
+			    }
+			},7000);
 			
 			createWindow(x,y,result,'');
 
