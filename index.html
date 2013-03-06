@@ -63,19 +63,25 @@
 	var linksMade = 0;
 	
 	var no_action = true;
+	var texts_opened = 0;
+	var synths_made = 0;
+	var nonblue_synths_made = 0;
 	
 	var windowIndex = 0;
 	
 	var blueTexts = {};
 	
+	
 
-		$(document).ready( function() {
+	$(document).ready( function() {
 		
 	    var saywho = window.navigator.sayswho;
 		if(saywho[0]=="MSIE" || saywho[0]=="IE") {
 		
 		    alert("machine for making sense has been designed and tested on Firefox and Chrome");
 		}
+		
+		$('#search_box').val('');
 		
 	
 		//openFirstBox();
@@ -97,22 +103,22 @@
                 $('.hint_screenshot').animate({'opacity':1},2000);		    
                 setTimeout(function() {
                     if(no_action) {
-                        $('.hint_screenshot').animate({'opacity':0},2000,function() {
+                        $('.hint_screenshot').animate({'opacity':0},TIMING_HINT_IMAGE_FADEOUT,function() {
                             $('.hint_screenshot').css('display','none');
                            setTimeout(function() {
                                 
                                 if(no_action && $('#search_box').val().length==0) {
                                     typeInSearch();		    
                                 }
-                            },5000);
+                            },TIMING_TYPEIN_WORD);
                             
                         });		    
                     
                     }
-                },5000);
+                },TIMING_HINT_IMAGE_ONSCREEN);
 		    
 		    }
-		},10000);
+		},TIMING_HINT_IMAGE);
 		
 		$('.search_box').focus();
 		$('.search_box').select();
@@ -131,6 +137,11 @@
   			});
   			
   			jsPlumb.bind("jsPlumbConnection", function(info) {
+  			
+  				$('.window_frame #hint_message').fadeOut(500);
+        	    $('.window_frame #hint_message').text('');
+        	    synths_made++;
+
   				var sourceTxt = info.source.parent().text();
   				var targetTxt = info.target.parent().text();
 				var sourceWindow = info.source.parents('.window_panel');//parent().parent().parent().parent();
@@ -143,8 +154,8 @@
 				var y = (info.source.position().top+info.target.position().top+
 						sourceWindow.position().top+targetWindow.position().top)/2 -50;
 						
-				if(info.source.hasClass('wm_wikifiedLink')) {	//wikified anchor
-				
+				if(info.source.hasClass('wm_wikifiedLink')) {	//wikified anchor (e.g red synth)
+				   nonblue_synths_made++;
 				   var sourceWord = info.source.text();
 				   var targetWord = info.target.text();
 				   		$.getJSON("search_all2.php?keyword="+sourceWord+"&max=10", function(data1) {
@@ -215,6 +226,18 @@
 					var length = Math.round((sourceTxt.length + targetTxt.length) /2);
 					
 					var order = color=='blue' ? 6 : 4;
+					
+					
+					if(color=='blue' && nonblue_synths_made==0) {
+					
+                         setTimeout(function() {
+                            if(nonblue_synths_made==0) {
+                                writeHintMessage(4);
+                            }
+                        },10000);
+        
+
+					}
 							
 					$.ajax({
 						url: 'markov.php?order='+order+'&begining='+info.source.text()+'&length='+length+'&content='+sourceTxt+' '+targetTxt,
@@ -292,7 +315,7 @@
         var sampleWord = 'search';
         var interval = 400;
         $('#search_box').val('');
-	    showText('#search_box',sampleWord,0,interval);
+	    showText('#search_box',sampleWord,0,interval,true);
 	    setTimeout(function() {
 	        search($('#search_box'));
 	    },interval*(sampleWord.length+2));
@@ -302,11 +325,11 @@
 	}
 	
 	
-	var showText = function (target, message, index, interval) {   
+	var showText = function (target, message, index, interval,input) {   
       if (index < message.length) {
-        var content =   $(target).val();
-        $(target).val(content+message[index++]);
-        setTimeout(function () { showText(target, message, index, interval); }, interval);
+        var content =   input ? $(target).val() : $(target).text();
+        input ? $(target).val(content+message[index++]) : $(target).text(content+message[index++]);
+        setTimeout(function () { showText(target, message, index, interval,input); }, interval);
       }
     }   
 	
@@ -415,17 +438,70 @@
 	{
 	    no_action = false;
 		var term = $('#search_box').val(); //searchBox.value;
+
+		if(term.length<2) 
+		    return false;
+
 		searchByTerm(term);
 		
 		openWriteBox();
-
-
- 		
+		
+		
+            setTimeout(function() {
+                if(texts_opened==0) {
+                    writeHintMessage(1);
+                }
+            },TIMING_HINT_MESSAGE_1);
+         		
 		
 		return false;
 	}
 	
+	
+	function writeHintMessage(step) {
+	    console.log('hint');
+	    
+	    $('.window_frame #hint_message').show();
+	    $('.window_frame #hint_message').text('');
+	    var hint_array;
+	    switch(step) {
+	        case 1:
+        	    hint_array =  HINT_MESSAGE_1;
+        	break;
+	        case 2:
+        	    hint_array =  HINT_MESSAGE_2;
+        	break;
+	        case 3:
+        	    hint_array =  HINT_MESSAGE_3;
+        	break;
+	        case 4:
+        	    hint_array =  HINT_MESSAGE_4;
+        	break;
+        	default:
+        	    hint_array = ELIZA_MESSAGES;
+        	    step = step.toLowerCase();
+        	break;
+        }
+	    var rand = Math.round(Math.random()*10)% hint_array.length;
+	    console.log(rand);
+	    var sampleWord = hint_array[rand]+' \t \n';
+	    sampleWord = sampleWord.replace('%word',step);
+        var interval = 80;
+        //$('#hint_message').val('');
+	    showText('.window_frame #hint_message',sampleWord,0,interval,false);
+	    
+	    var fadeout_delay =interval*sampleWord.length+3000;
+	    console.log(fadeout_delay);
+
+	
+	}
+	
+	
 	function searchByTerm(term) {
+	
+	
+	    $('.window_frame #hint_message').text('');
+
 		var author='';
 		if(term.indexOf(',')>0) {
 			author = term.substring(0,term.indexOf(',')).trim();
@@ -583,6 +659,31 @@
 		
 		var target = result.parentNode.parentNode;//.parentNode;
 		$.getJSON("search2.php?id="+article_id+"&wordIndex="+wordIndex, searchResultCallback($(target),term,(wordIndex==-1) ? true : false));
+		
+		texts_opened++;
+	    $('.window_frame #hint_message').fadeOut(500);
+	    $('.window_frame #hint_message').text('');
+
+        if(texts_opened==1 ) {
+        
+             setTimeout(function() {
+                if(texts_opened==1) {
+                    writeHintMessage(2);
+                }
+            },5000);
+        
+        }
+
+        if(texts_opened==2 && synths_made==0) {
+        
+             setTimeout(function() {
+                if(synths_made==0) {
+                    writeHintMessage(3);
+                }
+            },5000);
+        
+        }
+        
 
 		//result.parentNode.parentNode.parentNode.innerHTML = $('#desc_window .window_container').html();
 		return false;
@@ -799,6 +900,8 @@
 			    y=30+Math.random()*50;
 			}
 			
+			writeHintMessage(data.query.pages[pageId].title);
+			
 			createWindow(x,y,result,'');
 
 	  }
@@ -1010,6 +1113,16 @@
     
     }
     
+    function searchKeyup(searchField,event) {
+         
+         $('.hint_screenshot').css('display','none');
+         if (event.keyCode == 13) {
+            search(searchField);
+            no_action = false;
+        }
+    
+    }
+    
     
   
 	
@@ -1021,7 +1134,7 @@
 
 		
 	<div class="search_input">
-		<input type="text" class="search_box" id="search_box" tabindex="0" onkeyup="if (event.keyCode == 13) {search(this);}" 
+		<input type="text" class="search_box" id="search_box" tabindex="0" onkeyup="searchKeyup(this,event);" 
 		    onfocus="searchHint(true);"  onblur="searchHint(false);" />
 		<ul class="search_hint">
 		    <li>searchterm</li>
@@ -1030,7 +1143,6 @@
 		</ul>
 	</div>
 		
- 
 
 
 
@@ -1039,6 +1151,8 @@
 		<div class="write_container window_container">
 			<div class="suggestions">
 			</div>
+			<div id="hint_message"></div>
+
 			<textarea class="write_note_box" id="write_textarea">&nbsp;</textarea>
 			
 			<!--<a href="#" onclick="addSelectionToBox()">Add selection to notes</a>-->
@@ -1070,6 +1184,7 @@
 </div>
 
 <div class="hint_screenshot"></div>
+
 
 	
 

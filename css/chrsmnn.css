@@ -215,3 +215,5 @@
     .hint_screenshot { display: none; opacity: 0; position: absolute; top: 7px; right: 10px; background: url('../images/screen.png') top right no-repeat; width: 100%; height: 100%;}
     
     .text_section h2 a:hover { text-decoration: underline;}
+    
+    #hint_message { color: #555; background-color:#FEFEAA; text-align: right; vertical-align: right; border: 1px dotted #AAA;  float: right; margin: 2px 5px; /*position: absolute; top: 50px; right: 20px; z-index: 3000; overflow: hidden;*/}
