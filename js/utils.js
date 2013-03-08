@@ -110,3 +110,27 @@
       return M;
     })();
     
+    
+    function getURLParameter(name) {
+        return decodeURI(
+            (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
+        );
+    }
+    
+    
+     var autoRefresh = function(seconds) {
+        var refresh,       
+            intvrefresh = function() {
+                clearInterval(refresh);
+                refresh = setTimeout(function() {
+                   location.href = location.href;
+                }, seconds * 1000);
+            };
+    
+        $(document).on('keypress, click, mousemove', function() { intvrefresh(); detectFirstActivity();  });
+        intvrefresh();
+
+    };
+
+
+    

@@ -71,9 +71,56 @@
 	
 	var blueTexts = {};
 	
+	var desktop_demo = false;
+	
+	
+	
+	var idle = true;
+  
+    function detectFirstActivity() {
+        if(!idle) {
+            return;
+        }
+        else {
+            console.log('activity');
+            idle=false;
+           // triggerHintImage(2000);
+           $('.hint_screenshot').fadeOut();
+           typeInSearch();	
+            
+        }
+            
+    }
+
+	
 	
 
 	$(document).ready( function() {
+	
+
+	    
+		desktop_demo = getURLParameter('env')=='museum';
+		console.log(desktop_demo);
+		
+		if(desktop_demo) {
+		
+		
+            autoRefresh(180);
+            
+            $('.hint_screenshot').css('background-image',"url('../images/screen23.png')"); // large screenshot
+            console.log('show screenshot');
+		    $('.hint_screenshot').css('display','block');
+		    $('.hint_screenshot').css('opacity',1);
+		   // triggerHintImage(TIMING_HINT_IMAGE);
+		    
+		    
+		
+		}
+		else {
+		    triggerHintImage(TIMING_HINT_IMAGE);
+
+		
+		}
 		
 	    var saywho = window.navigator.sayswho;
 		if(saywho[0]=="MSIE" || saywho[0]=="IE") {
@@ -97,28 +144,9 @@
 		    document.title='010011';
 		}
 		
-		setTimeout(function() {
-		    if(no_action) {
-                $('.hint_screenshot').css('display','block');		    
-                $('.hint_screenshot').animate({'opacity':1},2000);		    
-                setTimeout(function() {
-                    if(no_action) {
-                        $('.hint_screenshot').animate({'opacity':0},TIMING_HINT_IMAGE_FADEOUT,function() {
-                            $('.hint_screenshot').css('display','none');
-                           setTimeout(function() {
-                                
-                                if(no_action && $('#search_box').val().length==0) {
-                                    typeInSearch();		    
-                                }
-                            },TIMING_TYPEIN_WORD);
-                            
-                        });		    
-                    
-                    }
-                },TIMING_HINT_IMAGE_ONSCREEN);
-		    
-		    }
-		},TIMING_HINT_IMAGE);
+		
+		
+		
 		
 		$('.search_box').focus();
 		$('.search_box').select();
@@ -308,6 +336,32 @@
 
           blueTexts[info.source]=blueGrid;
 	
+	}
+	
+	function triggerHintImage(initialDelay) {
+	
+        setTimeout(function() {
+                if(no_action) {
+                    $('.hint_screenshot').css('display','block');		    
+                    $('.hint_screenshot').animate({'opacity':1},2000);		    
+                    setTimeout(function() {
+                        if(no_action) {
+                            $('.hint_screenshot').animate({'opacity':0},TIMING_HINT_IMAGE_FADEOUT,function() {
+                                $('.hint_screenshot').css('display','none');
+                               setTimeout(function() {
+                                    
+                                    if(no_action && $('#search_box').val().length==0) {
+                                        typeInSearch();		    
+                                    }
+                                },TIMING_TYPEIN_WORD);
+                                
+                            });		    
+                        
+                        }
+                    },TIMING_HINT_IMAGE_ONSCREEN);
+                
+                }
+            },initialDelay);
 	}
 	
 	
